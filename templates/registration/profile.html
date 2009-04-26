@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="user">
+  <h3>내 정보</h3>
+  <ul>
+  <li>사용자 이름: {{ user.username }}</li>
+  <li>전자메일: {{ user.email }}</li>
+  {% if perms.galkwi.can_propose %}<li>제안 가능</li>{% endif %}
+  {% if perms.galkwi.can_vote %}<li>투표 가능</li>{% endif %}
+</li>
+  </ul>
+</div>
+{% endblock %}

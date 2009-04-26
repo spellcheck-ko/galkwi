@@ -1,0 +1,24 @@
+﻿application: galkwi
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /media
+  static_dir: _generated_media
+
+#- url: /remote_api
+#  script: remote_handler.py
+#  login: admin
+
+- url: /export
+  script: exporter.py
+  login: admin
+
+#- url: /tasks/count
+#  script: galkwi/tasks.py
+#  login: admin
+
+- url: /.*
+  script: common/appenginepatch/main.py
+

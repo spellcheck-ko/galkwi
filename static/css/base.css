@@ -1,0 +1,12 @@
+body { background: #fff; color: #000; margin: 0px; padding: 0px; }
+h1, h2, h3 { margin: 0px; padding: 0px; }
+#header { background: #68c; }
+#usernav { float: right; font-size: 0.75em; }
+#sitename h1 { font-size: x-large; text-align: left; margin-left: 10px; color: #eee; }
+#navbar { }
+#footer { text-align: left; color: #888; font-size: 0.75em; }
+#license {  }
+.documentstyle h1 { font-size: 170%; }
+.documentstyle h2 { margin-top: 1.5em; border-top: 4px solid #ddd; font-size: 150%; }
+.documentstyle h3 { margin-top: 1em; }
+.documentstyle p { margin: 1em; line-height: 1.5em; }

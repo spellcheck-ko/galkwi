@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>단어 정보</h3>
+
+<table>
+<tr>
+  <td>{{ entry.word }}</td>
+  <td>{{ entry.pos }}</td>
+  <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
+  <td>{{ entry.editor.username }}</td>
+  <td>{{ entry.date|date:"r" }}</td>
+  <td>{% if entry.comment %}{{ entry.comment }}{% endif %}</td>
+</tr>
+</table>
+
+{% if entry.valid %}
+<h3>제안</h3>
+{% if proposals_voting %}
+<p>진행 중인 제안</p>
+<table>
+{% for proposal in proposals_voting %}
+<td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.editor.username }}</td>
+{% endfor %}
+</table>
+{% else %}
+<p>진행 중인 제안이 없습니다</p>
+<a href="{% url proposal_remove entry_id=entry.key.id %}">삭제 제안하기</a>
+<a href="{% url proposal_update entry_id=entry.key.id %}">변경 제안하기</a>
+{% endif %}
+{% else %}
+<p>이 단어는 현재 유효한 단어가 아닙니다.</p>
+{% endif %}
+
+{% if proposals_prev %}
+<h3>이 단어를 변경/삭제하는 제안</h3>
+<table>
+{% for proposal in proposals_prev %}
+<td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.editor.username }}</td>
+<td>{{ proposal.status }}</td>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if proposals_new %}
+<h3>이 단어를 만든 제안</h3>
+<table>
+{% for proposal in proposals_new %}
+<td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.editor.username }}</td>
+<td>{{ proposal.status }}</td>
+{% endfor %}
+</table>
+{% endif %}
+{% endblock %}
