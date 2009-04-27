@@ -58,6 +58,17 @@ def entry_index(request):
     context['form'] = form
     return render_to_response('entry_index.html', context)
 
+def entry_detail(request, entry_id):
+    context = RequestContext(request)
+    entry = Entry.get_by_id(int(entry_id))
+    #entry = get_object_or_404(Entry, pk=entry_id)
+    context['entry'] = entry
+    context['proposals_voting'] = Proposal.all().filter('old_entry =', entry).filter('status =', 'VOTING')
+    context['proposals_new'] = Proposal.all().filter('new_entry =', entry)
+    context['proposals_prev'] = Proposal.all().filter('old_entry =', entry).filter('status !=', 'VOTING')
+                                                        
+    return render_to_response('entry_detail.html', context)
+
 PROPOSALS_PER_PAGE = 25
 PROPOSALS_PAGE_RANGE = 3
 
@@ -65,6 +76,7 @@ def proposal_index(request):
     context = RequestContext(request)
     query = Proposal.all()
     query.filter('status =', 'VOTING')
+    query.order('-date')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
@@ -245,14 +257,16 @@ def proposal_vote_no(request, proposal_id):
     return HttpResponseRedirect(proposal.get_absolute_url())
 proposal_vote_no = permission_required('galkwi.can_vote')(proposal_vote_no)
 
-def entry_detail(request, entry_id):
+def proposal_recentchanges(request):
     context = RequestContext(request)
-    entry = Entry.get_by_id(int(entry_id))
-    #entry = get_object_or_404(Entry, pk=entry_id)
-    context['entry'] = entry
-    context['proposals_voting'] = Proposal.all().filter('old_entry =', entry).filter('status =', 'VOTING')
-    context['proposals_new'] = Proposal.all().filter('new_entry =', entry)
-    context['proposals_prev'] = Proposal.all().filter('old_entry =', entry).filter('status !=', 'VOTING')
-                                                        
-    return render_to_response('entry_detail.html', context)
+    query = Proposal.all()
+    query.filter('status !=', 'VOTING')
+    query.order('-date')
+    paginator = Paginator(query, PROPOSALS_PER_PAGE)
+    page = int(request.GET.get('page', '1'))
+    try:
+        context['page'] = paginator.page(page)
+    except InvalidPage:
+        raise Http404
+    return render_to_response('proposal_recentchanges.html', context)
 

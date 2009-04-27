@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="proposal">
-<a href="{% url proposal_add %}">단어 추가 제안하기</a>
-<a href="{% url proposal_recentchanges %}">처리된 제안</a>
-
-<h3>제안 중인 단어</h3>
+<h3>처리된 단어</h3>
 
 <p>전체 {{ page.paginator.count }}개</p>
 
 <table>
 {% for proposal in page.object_list %}
 <tr>
-  <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.action }}</a></td>
+  <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.status }}</a></td>
+  <td>{{ proposal.action }}</td>
   <td>{{ proposal.date|date:"r" }}</td>
   <td>{{ proposal.word }}</td>
   <td>{{ proposal.pos }}</td>

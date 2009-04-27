@@ -11,7 +11,11 @@
 {% ifequal proposal.action "ADD" %}
 <table>
 <tr>
+{% ifequal proposal.status "VOTING" %}
   <td>{{ proposal.word }}</td>
+{% else %}
+  <td><a href="{% url entry entry_id=proposal.new_entry.key.id %}">{{ proposal.word }}</a></td>
+{% endifequal %}
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
   <td>{{ proposal.editor.username }}</td>

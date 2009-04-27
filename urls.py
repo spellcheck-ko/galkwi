@@ -33,6 +33,9 @@ urlpatterns = auth_patterns + patterns('',
     url(r'^proposal/(?P<proposal_id>\d+)/cancel/$',
         'galkwi.views.proposal_cancel', name='proposal_cancel'),
 
+    url(r'^proposal/recentchanges/$', 'galkwi.views.proposal_recentchanges',
+        name='proposal_recentchanges'),
+
     url(r'^account/profile/$', 'galkwi.views.profile',
         name='profile'),
     url(r'^account/register/$', 'galkwi.views.register',
