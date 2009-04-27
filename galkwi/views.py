@@ -39,24 +39,20 @@ def entry_index(request):
     context = RequestContext(request)
     if request.method == 'GET':
         form = EntrySearchForm(request.GET)
-        query = Entry.all()
-        query.filter('valid =', True)
         if form.is_valid():
             word = form.cleaned_data['word']
             context['word'] = word
+            query = Entry.all().filter('valid =', True)
             query.filter('word_substrings =', word)
+            query.order('word')
+            paginator = Paginator(query, ENTRIES_PER_PAGE)
+            page = int(request.GET.get('page', '1'))
+            try:
+                context['page'] = paginator.page(page)
+            except InvalidPage:
+                raise Http404
         else:
             form = EntrySearchForm()
-        query.order('word')
-        paginator = Paginator(query, ENTRIES_PER_PAGE)
-        try:
-            page = int(request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-        try:
-            context['page'] = paginator.page(page)
-        except InvalidPage:
-            raise Http404
     else:
         form = EntrySearchForm()
     context['form'] = form
