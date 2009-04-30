@@ -141,6 +141,14 @@ class Proposal(Word):
         self.status = 'CANCELED'
         self.status_date = datetime.now()
         self.save()
+    def reject(self):
+        self.status = 'REJECTED'
+        self.status_date = datetime.now()
+        self.save()
+    def expire(self):
+        self.status = 'EXPIRED'
+        self.status_date = datetime.now()
+        self.save()
     def apply(self):
         if self.status != 'VOTING':
             return

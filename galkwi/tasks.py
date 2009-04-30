@@ -24,15 +24,13 @@ def count(request):
                                                      votes_no.count()))
         if votes_no.count() >= REQUIRED_NO:
             response.write('  REJECTED')
-            proposal.status = 'REJECTED'
-            proposal.save()
+            proposal.reject()
         elif votes_yes.count() >= REQUIRED_YES:
             response.write('  APPROVED')
             proposal.apply()
         elif (now - proposal.date).days >= EXPIRE_DAYS:
             response.write('  EXPIRED')
-            proposal.status = 'EXPIRED'
-            proposal.save()
+            proposal.expire()
         #else:
         #    response.write('  APPROVED')
         #    proposal.apply()
