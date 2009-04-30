@@ -1,4 +1,4 @@
 cron:
 - description: vote counting
   url: /tasks/count
-  schedule: every 24 hours
+  schedule: every 6 hours
