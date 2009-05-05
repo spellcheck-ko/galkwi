@@ -5,16 +5,16 @@
 <tr>
   <td>{{ proposal.action }}</td>
   <td>{{ proposal.date|date:"r" }}</td>
-  <td>{{ proposal.rationale }}</td>
+  <td>{% if proposal.rationale %}{{ proposal.rationale }}{% endif %}</td>
 </tr>
 </table>
 {% ifequal proposal.action "ADD" %}
 <table>
 <tr>
-{% ifequal proposal.status "VOTING" %}
-  <td>{{ proposal.word }}</td>
-{% else %}
+{% ifequal proposal.status "APPROVED" %}
   <td><a href="{% url entry entry_id=proposal.new_entry.key.id %}">{{ proposal.word }}</a></td>
+{% else %}
+  <td>{{ proposal.word }}</td>
 {% endifequal %}
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
@@ -39,7 +39,7 @@
 <tr>
   <td><a href="{% url entry entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
-  <td>{{ proposal.old_entry.props }}</td>
+  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
 </tr>
 <tr>
   {% ifequal proposal.status "APPROVED" %}
@@ -48,7 +48,7 @@
   <td>{{ proposal.word }}</td>
   {% endifequal %}
   <td>{{ proposal.pos }}</td>
-  <td>{{ proposal.props }}</td>
+  <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
 </tr>
 </table>
 {% endifequal %}
@@ -66,7 +66,7 @@
   <td>{{ vote.vote }}</td>
   <td>{{ vote.date|date:"r" }}</td>
   <td>{{ vote.reviewer.username }}</td>
-  <td>{{ vote.reason }}</td>
+  <td>{% if vote.reason %}{{ vote.reason }}{% endif %}</td>
 </tr>
 {% endfor %}
 </table>

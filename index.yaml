@@ -10,7 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 2 times in query history.
+# Unused in query history -- copied from input.
 - kind: django_admin_log
   properties:
   - name: user
@@ -23,12 +23,11 @@ indexes:
   - name: valid
   - name: word
 
-# Used 14 times in query history.
+# Used 4 times in query history.
 - kind: galkwi_entry
   properties:
   - name: valid
   - name: word_substrings
-  - name: word
 
 # Used 2 times in query history.
 - kind: galkwi_proposal
@@ -42,7 +41,7 @@ indexes:
   - name: status
   - name: date
 
-# Used 3 times in query history.
+# Used 15 times in query history.
 - kind: galkwi_proposal
   properties:
   - name: status
@@ -55,3 +54,9 @@ indexes:
   - name: status
   - name: status_date
     direction: desc
+
+# Unused in query history -- copied from input.
+- kind: galkwi_proposal
+  properties:
+  - name: status
+  - name: word

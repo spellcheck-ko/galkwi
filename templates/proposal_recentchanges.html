@@ -10,7 +10,7 @@
 <tr>
   <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.status }}</a></td>
   <td>{{ proposal.action }}</td>
-  <td>{{ proposal.date|date:"r" }}</td>
+  <td>{{ proposal.status_date|date:"r" }}</td>
   <td>{{ proposal.word }}</td>
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
