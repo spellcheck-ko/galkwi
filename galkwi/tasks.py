@@ -36,3 +36,28 @@ def count(request):
         #    proposal.apply()
         response.write('\n')
     return response
+count = permission_required('galkwi.can_vote')(count)
+
+def export(request):
+    limit = int(request.GET.get('limit', '100'))
+    offset = int(request.GET.get('offset', '0'))
+    response = HttpResponse(mimetype='text/plain')
+    query = Entry.all().filter('valid =', True).order('word')
+    entries = query.fetch(limit,offset)
+    for entry in entries:
+        response.write('<Entry>\n')
+        response.write('<word>%s</word>\n' % entry.word)
+        response.write('<pos>%s</pos>\n' % entry.pos)
+        if entry.props:
+            response.write('<props>%s</props>\n' % entry.props)
+        if entry.stem:
+            response.write('<stem>%s</stem>\n' % entry.stem)
+        if entry.etym:
+            response.write('<etym>%s</etym>\n' % entry.etym)
+        if entry.comment:
+            response.write('<comment>%s</comment>\n' % entry.comment)
+        response.write('<editor>%s</editor>\n' % entry.editor.username)
+        response.write('<date>%s</date>\n' % entry.date.strftime('%Y-%m-%d %H:%M:%S'))
+        response.write('</Entry>\n')
+    return response
+export = permission_required('galkwi.can_vote')(export)

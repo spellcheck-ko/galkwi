@@ -42,6 +42,7 @@ urlpatterns = auth_patterns + patterns('',
         name='register'),
 
     (r'^tasks/count/$', 'galkwi.tasks.count'),
+    (r'^tasks/export/$', 'galkwi.tasks.export'),
 
     # # static files
     url(r'^css/(?P<path>.*)$', 'django.views.static.serve',

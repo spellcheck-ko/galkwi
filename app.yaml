@@ -11,9 +11,9 @@ handlers:
 #  script: remote_handler.py
 #  login: admin
 
-- url: /export
-  script: exporter.py
-  login: admin
+#- url: /export
+#  script: exporter.py
+#  login: admin
 
 #- url: /tasks/count
 #  script: galkwi/tasks.py
