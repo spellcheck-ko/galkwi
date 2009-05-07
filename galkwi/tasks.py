@@ -10,6 +10,7 @@ from google.appengine.ext import db
 from google.appengine.api.datastore import Query
 from galkwi.models import *
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
 
 def count(request):
     proposals = Proposal.all().filter('status =', 'VOTING').order('date').fetch(999)
