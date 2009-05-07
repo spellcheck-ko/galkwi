@@ -100,7 +100,10 @@ def proposal_add(request):
             instance.status = 'VOTING'
             instance.rebuild_substrings()
             instance.save()
-            return HttpResponseRedirect(instance.get_absolute_url())
+            if '_addanother' in request.POST:
+                form = ProposalEditAddForm()
+            else:
+                return HttpResponseRedirect(instance.get_absolute_url())
     else:
         form = ProposalEditAddForm()
     context['form'] = form
