@@ -1,11 +1,16 @@
 body { background: #fff; color: #000; margin: 0px; padding: 0px; }
 h1, h2, h3 { margin: 0px; padding: 0px; }
-#header { background: #68c; }
+#header { background: #68c; padding: 0.5em; }
 #usernav { float: right; font-size: 0.75em; }
-#sitename h1 { font-size: x-large; text-align: left; margin-left: 10px; color: #eee; }
-#navbar { }
+#sitename h1 { font-size: x-large; text-align: left; color: #eee; }
+#navbar { padding: 10px 0 0 0; }
 #footer { text-align: left; color: #888; font-size: 0.75em; }
 #license {  }
+
+#header,.proposal { padding-left: 0.5em; }
+.proposal th { font-weight: normal; text-align: right; vertical-align: top; }
+.proposal td { padding: 3px; }
+
 .documentstyle h1 { font-size: 170%; }
 .documentstyle h2 { margin-top: 1.5em; border-top: 4px solid #ddd; font-size: 150%; }
 .documentstyle h3 { margin-top: 1em; }
