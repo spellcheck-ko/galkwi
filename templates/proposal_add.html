@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="proposal">
+{% if messages %}
+<ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+{% endif %}
 <form action="" method="POST">
 <table>
 {{ form.as_p }}
