@@ -40,7 +40,7 @@ def count(request):
     return response
 count = permission_required('galkwi.can_vote')(count)
 
-EXPORT_CHUNK_SIZE = 200
+EXPORT_CHUNK_SIZE = 100
 
 def export(request):
     start = request.GET.get('start')
@@ -48,7 +48,7 @@ def export(request):
     query = Entry.all()
     if start:
         query.filter('word >=', start)
-    #query.filter('valid =', True)
+    query.filter('valid =', True)
     query.order('word')
     entries = query.fetch(EXPORT_CHUNK_SIZE)
     response.write('<exported-data>\n')

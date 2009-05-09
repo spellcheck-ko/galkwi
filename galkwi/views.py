@@ -44,7 +44,9 @@ def entry_index(request):
             word = form.cleaned_data['word']
             context['word'] = word
             query = Entry.all()
+            query.filter('valid =', True)
             query.filter('word_substrings =', word)
+            query.order('word')
             entries = query.fetch(1000)
             paginator = Paginator(query, ENTRIES_PER_PAGE)
             page = int(request.GET.get('page', '1'))
@@ -276,7 +278,8 @@ proposal_vote_no = permission_required('galkwi.can_vote')(proposal_vote_no)
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
-    query = Proposal.all().filter('status !=', 'VOTING')
+    query = Proposal.all().filter('status_date <', datetime.now())
+    query.order('-status_date')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     page = int(request.GET.get('page', '1'))
     try:
