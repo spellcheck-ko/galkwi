@@ -11,6 +11,7 @@ from google.appengine.api.datastore import Query
 from galkwi.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
+from xml.sax.saxutils import escape as xml_escape
 
 def count(request):
     proposals = Proposal.all().filter('status =', 'VOTING').order('date').fetch(999)
@@ -39,26 +40,34 @@ def count(request):
     return response
 count = permission_required('galkwi.can_vote')(count)
 
+EXPORT_CHUNK_SIZE = 200
+
 def export(request):
-    limit = int(request.GET.get('limit', '100'))
-    offset = int(request.GET.get('offset', '0'))
-    response = HttpResponse(mimetype='text/plain')
-    query = Entry.all().filter('valid =', True).order('word')
-    entries = query.fetch(limit,offset)
+    start = request.GET.get('start')
+    response = HttpResponse(mimetype='application/xml')
+    query = Entry.all()
+    if start:
+        query.filter('word >=', start)
+    #query.filter('valid =', True)
+    query.order('word')
+    entries = query.fetch(EXPORT_CHUNK_SIZE)
+    response.write('<exported-data>\n')
     for entry in entries:
+        if not entry.valid:
+            continue
         response.write('<Entry>\n')
         response.write('<word>%s</word>\n' % entry.word)
         response.write('<pos>%s</pos>\n' % entry.pos)
         if entry.props:
-            response.write('<props>%s</props>\n' % entry.props)
+            response.write('<props>%s</props>\n' % xml_escape(entry.props))
         if entry.stem:
             response.write('<stem>%s</stem>\n' % entry.stem)
         if entry.etym:
             response.write('<etym>%s</etym>\n' % entry.etym)
         if entry.comment:
-            response.write('<comment>%s</comment>\n' % entry.comment)
+            response.write('<comment>%s</comment>\n' % xml_escape(entry.comment))
         response.write('<editor>%s</editor>\n' % entry.editor.username)
         response.write('<date>%s</date>\n' % entry.date.strftime('%Y-%m-%d %H:%M:%S'))
         response.write('</Entry>\n')
+    response.write('</exported-data>\n')
     return response
-export = permission_required('galkwi.can_vote')(export)
