@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 #from ragendja.dbutils import get_object_or_404
 from django.template import RequestContext
 from django.core.paginator import Paginator, InvalidPage
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from datetime import datetime
 from galkwi.models import *
@@ -201,6 +202,16 @@ def proposal_detail(request, proposal_id):
         context['cancel_form'] = ProposalCancelForm()
     return render_to_response('proposal_detail.html', context)
 
+def proposal_vote_one(request):
+    context = RequestContext(request)
+    proposals = Proposal.all().filter('status =', 'VOTING')
+    for proposal in proposals:
+        myvote = Vote.all().filter('proposal =', proposal).filter('reviewer =', request.user).get()
+        if not myvote:
+            return HttpResponseRedirect(proposal.get_absolute_url())
+    return render_to_response('proposal_vote_end.html', context)
+proposal_vote_one = permission_required('galkwi.can_vote')(proposal_vote_one)
+
 def proposal_vote(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
@@ -227,7 +238,10 @@ def proposal_vote(request, proposal_id):
                 instance.reviewer = request.user
                 instance.date = datetime.now()
                 instance.save()
-            return HttpResponseRedirect(proposal.get_absolute_url())
+            if '_voteone' in request.POST:
+                return HttpResponseRedirect(reverse('proposal_vote_one'))
+            else:
+                return HttpResponseRedirect(proposal.get_absolute_url())
         else:
             return HttpResponseBadRequest(request)
     else:
@@ -262,7 +276,7 @@ proposal_vote_no = permission_required('galkwi.can_vote')(proposal_vote_no)
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
-    query = Proposal.all().order('-status_date').filter('status !=', 'VOTING')
+    query = Proposal.all().filter('status !=', 'VOTING')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     page = int(request.GET.get('page', '1'))
     try:

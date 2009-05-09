@@ -39,7 +39,8 @@
 <tr>
   <td><a href="{% url entry entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
-  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
+  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}  <td>{% if proposal.old_entry.etym %}{{ proposal.old_entry.etym }}{% endif %}</td>
+  <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment }}{% endif %}</td>
 </tr>
 <tr>
   {% ifequal proposal.status "APPROVED" %}
@@ -49,6 +50,8 @@
   {% endifequal %}
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
+  <td>{% if proposal.etym %}{{ proposal.etym }}{% endif %}</td>
+  <td>{% if proposal.comment %}{{ proposal.comment }}{% endif %}</td>
 </tr>
 </table>
 {% endifequal %}
@@ -80,6 +83,7 @@
 <table>
 {{ vote_form }}
 </table>
+<input type="submit" name="_voteone" value="투표 및 다음 제안으로" />
 <input type="submit" value="투표" />
 </form>
 {% endif %}{% endifequal %}
