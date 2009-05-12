@@ -16,7 +16,7 @@
   <td>{{ proposal.old_entry.pos }}</td>
   <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
   <td>{{ proposal.old_entry.editor.username }}</td>
-  <td>{{ proposal.old_entry.comment|truncatewords:4 }}</td>
+  <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment|truncatewords:4 }}{% endif %}</td>
 {% else %}
   <td>{{ proposal.word }}</td>
   <td>{{ proposal.pos }}</td>

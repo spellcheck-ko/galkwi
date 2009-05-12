@@ -18,13 +18,13 @@
   <td>{{ proposal.old_entry.pos }}</td>
   <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
   <td>{{ proposal.old_entry.editor.username }}</td>
-  <td>{{ proposal.old_entry.comment|truncatewords:4 }}</td>
+  <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment|truncatewords:4 }}{% endif %}</td>
 {% else %}
   <td>{{ proposal.word }}</td>
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
   <td>{{ proposal.editor.username }}</td>
-  <td>{{ proposal.comment|truncatewords:4 }}</td>
+  <td>{% if proposal.comment %}{{ proposal.comment|truncatewords:4 }}{% endif %}</td>
 {% endifequal %}
   <td>{% if proposal.rationale %}{{ proposal.rationale|truncatewords:4 }}{% endif %}</td>
 </tr>
