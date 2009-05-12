@@ -13,12 +13,20 @@
 <tr>
   <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.action }}</a></td>
   <td>{{ proposal.date|date:"r" }}</td>
+{% ifequal proposal.action "REMOVE" %}
+  <td>{{ proposal.old_entry.word }}</td>
+  <td>{{ proposal.old_entry.pos }}</td>
+  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
+  <td>{{ proposal.old_entry.editor.username }}</td>
+  <td>{{ proposal.old_entry.comment|truncatewords:4 }}</td>
+{% else %}
   <td>{{ proposal.word }}</td>
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
   <td>{{ proposal.editor.username }}</td>
-  <td>{% if proposal.comment %}{{ proposal.comment|truncatewords:4 }}{% endif %}</td>
-  <td>{% if proposal.rationale %}{{ proposal.rationale }}{% endif %}</td>
+  <td>{{ proposal.comment|truncatewords:4 }}</td>
+{% endifequal %}
+  <td>{% if proposal.rationale %}{{ proposal.rationale|truncatewords:4 }}{% endif %}</td>
 </tr>
 {% endfor %}
 </table>
