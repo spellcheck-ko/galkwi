@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="proposal">
-{% if messages %}
-<ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+{% if submitted_proposal %}
+<ul class="messagelist"><a href="{% url proposal proposal_id=submitted_proposal.key.id %}">{{ submitted_proposal.word }}</a>({{ submitted_proposal.pos }})' 제안이 잘 생성되었습니다.</ul>
 {% endif %}
 <form action="" method="POST">
 <table>

@@ -103,8 +103,8 @@ def proposal_add(request):
             instance.status = 'VOTING'
             instance.rebuild_substrings()
             instance.save()
-            context['messages']=[u"'%s(%s)' 제안이 잘 생성되었습니다." % (instance.word, instance.pos)]
             if '_addanother' in request.POST:
+                context['submitted_proposal'] = instance
                 form = ProposalEditAddForm()
             else:
                 return HttpResponseRedirect(instance.get_absolute_url())
