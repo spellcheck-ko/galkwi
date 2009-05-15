@@ -18,7 +18,11 @@
   <td>{{ proposal.old_entry.editor.username }}</td>
   <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment|truncatewords:4 }}{% endif %}</td>
 {% else %}
+{% ifequal proposal.status "APPROVED" %}
+  <td><a href="{{ proposal.new_entry.get_absolute_url }}">{{ proposal.word }}</a></td>
+{% else %}
   <td>{{ proposal.word }}</td>
+{% endifequal %}
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
   <td>{{ proposal.editor.username }}</td>
