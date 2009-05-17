@@ -207,7 +207,7 @@ def proposal_detail(request, proposal_id):
 
 def proposal_vote_one(request):
     context = RequestContext(request)
-    proposals = Proposal.all().filter('status =', 'VOTING')
+    proposals = Proposal.all().filter('status =', 'VOTING').order('date')
     for proposal in proposals:
         myvote = Vote.all().filter('proposal =', proposal).filter('reviewer =', request.user).get()
         if not myvote:
