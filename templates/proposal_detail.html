@@ -5,6 +5,7 @@
 <tr>
   <td>{{ proposal.action }}</td>
   <td>{{ proposal.date|date:"r" }}</td>
+  <td>{{ proposal.editor.username }}</td>
   <td>{% if proposal.rationale %}{{ proposal.rationale }}{% endif %}</td>
 </tr>
 </table>
@@ -18,7 +19,6 @@
 {% endifequal %}
   <td>{{ proposal.pos }}</td>
   <td>{% if proposal.props %}{{ proposal.props }}{% endif %}</td>
-  <td>{{ proposal.editor.username }}</td>
   <td>{% if proposal.comment %}{{ proposal.comment }}{% endif %}</td>
 </tr>
 </table>
@@ -29,7 +29,9 @@
 <tr>
   <td><a href="{% url entry entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
-  <td>{{ proposal.old_entry.props }}</td>
+  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
+  <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment }}{% endif %}</td>
+  <td>{{ proposal.old_entry.editor.username }}</td>
 </tr>
 </table>
 {% endifequal %}
@@ -39,7 +41,8 @@
 <tr>
   <td><a href="{% url entry entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
-  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}  <td>{% if proposal.old_entry.etym %}{{ proposal.old_entry.etym }}{% endif %}</td>
+  <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
+  <td>{% if proposal.old_entry.etym %}{{ proposal.old_entry.etym }}{% endif %}</td>
   <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment }}{% endif %}</td>
 </tr>
 <tr>
