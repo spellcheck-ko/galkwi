@@ -3,6 +3,7 @@
 REQUIRED_YES = 1
 REQUIRED_NO = 1
 EXPIRE_DAYS = 14
+MIN_DAYS = 1
 
 from django.http import HttpResponse
 from datetime import datetime
@@ -24,7 +25,9 @@ def count(request):
         response.write('proposal %d, vote: %d/%d' % (proposal.key().id(),
                                                      votes_yes.count(),
                                                      votes_no.count()))
-        if votes_no.count() >= REQUIRED_NO:
+        if (now - proposal.date).days < MIN_DAYS:
+            response.write('  PENDING (less than %d days)' % MIN_DAYS)
+        elif votes_no.count() >= REQUIRED_NO:
             response.write('  REJECTED')
             proposal.reject()
         elif votes_yes.count() >= REQUIRED_YES:
@@ -33,9 +36,6 @@ def count(request):
         elif (now - proposal.date).days >= EXPIRE_DAYS:
             response.write('  EXPIRED')
             proposal.expire()
-        #else:
-        #    response.write('  APPROVED')
-        #    proposal.apply()
         response.write('\n')
     return response
 count = permission_required('galkwi.can_vote')(count)
