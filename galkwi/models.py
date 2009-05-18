@@ -85,6 +85,9 @@ class Entry(Word):
         return name
     def get_absolute_url(self):
         return '/entry/%d/' % self.key().id()
+    def save(self):
+        self.rebuild_substrings()
+        return super(Entry, self).save()
     #@permalink
     #def get_absolute_url(self):
     #    return ('galkwi.views.entry_detail', (), {'entry_id': self.id})
@@ -137,6 +140,9 @@ class Proposal(Word):
     #@permalink
     #def get_absolute_url(self):
     #    return ('galkwi.views.proposal_detail', (), {'proposal_id': self.id})
+    def save(self):
+        self.rebuild_substrings()
+        return super(Proposal, self).save()
     def cancel(self):
         self.status = 'CANCELED'
         self.status_date = datetime.now()
@@ -164,7 +170,6 @@ class Proposal(Word):
             entry.comment = self.comment
             entry.date = self.date
             entry.editor = self.editor
-            entry.rebuild_substrings()
             entry.save()
             self.new_entry = entry
             self.status = 'APPROVED'
@@ -189,7 +194,6 @@ class Proposal(Word):
             entry.date = self.date
             entry.editor = self.editor
             entry.overrides = self.old_entry
-            entry.rebuild_substrings()
             entry.save()
             self.new_entry = entry
             entry = self.old_entry

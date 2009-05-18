@@ -101,7 +101,6 @@ def proposal_add(request):
             instance.date = datetime.now()
             instance.editor = request.user
             instance.status = 'VOTING'
-            instance.rebuild_substrings()
             instance.save()
             if '_addanother' in request.POST:
                 context['submitted_proposal'] = instance
@@ -163,7 +162,6 @@ def proposal_update(request, entry_id):
             instance.date = datetime.now()
             instance.editor = request.user
             instance.status = 'VOTING'
-            instance.rebuild_substrings()
             instance.save()
             return HttpResponseRedirect(instance.get_absolute_url())
     else:
