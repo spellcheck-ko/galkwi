@@ -72,6 +72,7 @@ class Word(db.Model):
 class Entry(Word):
     ## edit
     date = db.DateTimeProperty()
+    editors = db.ListProperty(db.Key)
     editor = db.ReferenceProperty(User, collection_name='entry_editor_set')
     ## status
     valid = db.BooleanProperty(default=True)
@@ -170,6 +171,7 @@ class Proposal(Word):
             entry.orig = self.orig
             entry.comment = self.comment
             entry.date = self.date
+            entry.editors = [ self.editor.key() ]
             entry.editor = self.editor
             entry.save()
             self.new_entry = entry
@@ -194,6 +196,9 @@ class Proposal(Word):
             entry.comment = self.comment
             entry.date = self.date
             entry.editor = self.editor
+            entry.editors = self.old_entry.editors
+            if not self.editor.key() in entry.editors:
+                entry.editors.append(self.editor.key())
             entry.overrides = self.old_entry
             entry.save()
             self.new_entry = entry

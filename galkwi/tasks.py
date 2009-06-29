@@ -66,6 +66,11 @@ def export(request):
             response.write('<etym>%s</etym>\n' % entry.etym)
         if entry.comment:
             response.write('<comment>%s</comment>\n' % xml_escape(entry.comment))
+        response.write('<editors>')
+        for ekey in entry.editors:
+            editor = db.get(ekey)
+            response.write('<name>%s</name>' % editor.username)
+        response.write('</editor>\n')
         response.write('<editor>%s</editor>\n' % entry.editor.username)
         response.write('<date>%s</date>\n' % entry.date.strftime('%Y-%m-%d %H:%M:%S'))
         response.write('</Entry>\n')
