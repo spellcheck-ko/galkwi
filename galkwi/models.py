@@ -59,11 +59,12 @@ class Word(db.Model):
     class Meta:
         abstract = True
     def rebuild_substrings(self):
-        length = len(unicode(self.word))
         substrings = []
-        for a in range(0, length):
-            for b in range(a + 1, length + 1):
-                substrings.append(self.word[a:b])
+        if self.word:
+            length = len(unicode(self.word))
+            for a in range(0, length):
+                for b in range(a + 1, length + 1):
+                    substrings.append(self.word[a:b])
         self.word_substrings = substrings
         
 
