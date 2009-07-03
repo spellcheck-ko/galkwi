@@ -70,7 +70,7 @@ def export(request):
         for ekey in entry.editors:
             editor = db.get(ekey)
             response.write('<name>%s</name>' % editor.username)
-        response.write('</editor>\n')
+        response.write('</editors>\n')
         response.write('<editor>%s</editor>\n' % entry.editor.username)
         response.write('<date>%s</date>\n' % entry.date.strftime('%Y-%m-%d %H:%M:%S'))
         response.write('</Entry>\n')
