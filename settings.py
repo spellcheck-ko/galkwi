@@ -18,6 +18,9 @@ SECRET_KEY = 'yp3@a_*5t(29myrl@wxyvy0##1c-yg8xih+b45957_32o1554!'
 # Enable I18N and set default language to 'en'
 USE_I18N = True
 LANGUAGE_CODE = 'en'
+TIME_ZONE = 'Asia/Seoul'
+DATE_FORMAT = 'Y-m-d'
+TIME_FORMAT = 'H:i:s'
 
 #Restrict supported languages (and JS media generation)
 #LANGUAGES = (

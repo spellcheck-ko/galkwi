@@ -9,7 +9,7 @@
   <td>{{ entry.pos }}</td>
   <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
   <td>{{ entry.editor.username }}</td>
-  <td>{{ entry.date|date:"r" }}</td>
+  <td>{{ entry.date|date }} {{ entry.date|time }}</td>
   <td>{% if entry.comment %}{{ entry.comment }}{% endif %}</td>
 </tr>
 </table>
@@ -21,7 +21,7 @@
 <table>
 {% for proposal in proposals_voting %}
 <td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 {% endfor %}
 </table>
@@ -39,7 +39,7 @@
 <table>
 {% for proposal in proposals_prev %}
 <td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 <td>{{ proposal.status }}</td>
 {% endfor %}
@@ -51,7 +51,7 @@
 <table>
 {% for proposal in proposals_new %}
 <td><a href="{% url proposal proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date:"r" }}</td>
+<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 <td>{{ proposal.status }}</td>
 {% endfor %}

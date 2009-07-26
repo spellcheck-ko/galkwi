@@ -4,7 +4,7 @@
 <table>
 <tr>
   <td>{{ proposal.action }}</td>
-  <td>{{ proposal.date|date:"r" }}</td>
+  <td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
   <td>{{ proposal.editor.username }}</td>
   <td>{% if proposal.rationale %}{{ proposal.rationale }}{% endif %}</td>
 </tr>
@@ -70,7 +70,7 @@
 {% for vote in votes %}
 <tr>
   <td>{{ vote.vote }}</td>
-  <td>{{ vote.date|date:"r" }}</td>
+  <td>{{ vote.date|date }} {{ vote.date|time }}</td>
   <td>{{ vote.reviewer.username }}</td>
   <td>{% if vote.reason %}{{ vote.reason }}{% endif %}</td>
 </tr>
@@ -78,7 +78,7 @@
 </table>
 {% ifnotequal proposal.status "VOTING" %}
 <p>결과: {{ proposal.status }}</p>
-<p>처리 시각: {{ proposal.status_date|date:"r" }}</p>
+<p>처리 시각: {{ proposal.status_date|date }} {{ proposal.status_date|time }}</p>
 {% endifnotequal %}
 {% ifequal proposal.status "VOTING" %}{% if perms.galkwi.can_vote %}
 <h3>투표하기</h3>

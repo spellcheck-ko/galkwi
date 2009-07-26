@@ -12,7 +12,7 @@
 {% for proposal in page.object_list %}
 <tr>
   <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.action }}</a></td>
-  <td>{{ proposal.date|date:"r" }}</td>
+  <td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 {% ifequal proposal.action "REMOVE" %}
   <td>{{ proposal.old_entry.word }}</td>
   <td>{{ proposal.old_entry.pos }}</td>

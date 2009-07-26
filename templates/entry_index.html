@@ -22,7 +22,7 @@
   <td>{{ entry.pos }}</td>
   <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
   <td>{{ entry.editor.username }}</td>
-  <td>{{ entry.date|date:"r" }}</td>
+  <td>{{ entry.date|date }} {{ entry.date|time }}</td>
 </tr>
 {% endfor %}
 </table>

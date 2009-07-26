@@ -10,7 +10,7 @@
 <tr>
   <td><a href="{{ proposal.get_absolute_url }}">{{ proposal.status }}</a></td>
   <td>{{ proposal.action }}</td>
-  <td>{{ proposal.status_date|date:"r" }}</td>
+  <td>{{ proposal.status_date|date }} {{ proposal.status_date|time }}</td>
 {% ifequal proposal.action "REMOVE" %}
   <td>{{ proposal.old_entry.word }}</td>
   <td>{{ proposal.old_entry.pos }}</td>
