@@ -2,7 +2,7 @@
 
 REQUIRED_YES = 1
 REQUIRED_NO = 1
-EXPIRE_DAYS = 14
+EXPIRE_DAYS = 3000
 MIN_DAYS = 1
 
 from django.http import HttpResponse
