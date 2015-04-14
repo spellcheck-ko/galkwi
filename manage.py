@@ -1,18 +1,10 @@
 #!/usr/bin/env python
-if __name__ == '__main__':
-    from common.appenginepatch.aecmd import setup_env
-    setup_env(manage_py_env=True)
+import os
+import sys
 
-    # Recompile translation files
-    from mediautils.compilemessages import updatemessages
-    updatemessages()
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "galkwi.settings")
 
-    # Generate compressed media files for manage.py update
-    import sys
-    from mediautils.generatemedia import updatemedia
-    if len(sys.argv) >= 2 and sys.argv[1] == 'update':
-        updatemedia(True)
+    from django.core.management import execute_from_command_line
 
-    import settings
-    from django.core.management import execute_manager
-    execute_manager(settings)
+    execute_from_command_line(sys.argv)
