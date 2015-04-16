@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="search_form">
+<form action="/entry/" method="GET">
+{{ form.as_p }}
+<input type="submit" value="찾기" />
+</form>
+</div>
+
+<a href="{% url 'proposal_add' %}">단어 추가 제안하기</a>
+
+{% if page %}
+<div class="search_result">
+<h3>검색 결과</h3>
+
+<p>전체 {{ page.paginator.count }}개</p>
+
+<table>
+{% for entry in page.object_list %}
+<tr>
+  <td><a href="{{ entry.get_absolute_url }}">{{ entry.word }}</a></td>
+  <td>{{ entry.pos }}</td>
+  <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
+  <td>{{ entry.editor.username }}</td>
+  <td>{{ entry.date|date }} {{ entry.date|time }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+<div class="paginator">
+{% if page.has_previous %}
+<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page.previous_page_number }}">이전</a>
+{% endif %}
+{% if page.has_next %}
+<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page.next_page_number }}">다음</a>
+{% endif %}
+</div>
+{% endif %}
+{% endblock %}

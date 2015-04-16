@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.db import models
 from django.db.models import permalink, signals
-from google.appengine.ext import db
-from google.appengine.ext.db import polymodel
 from django.contrib.auth.models import User
 from datetime import datetime
 
-class Person(db.Model):
-    user = db.UserProperty()
+class Person(models.Model):
+    user = User()
 
-class UserProfile(db.Model):
+class UserProfile(models.Model):
     pass
 
 #    user = models.ForeignKey(User, unique=True)
@@ -35,27 +34,27 @@ class UserProfile(db.Model):
 
 
 POS_CHOICES = [
-    u'명사',
-    u'동사',
-    u'형용사',
-    u'부사',
-    u'대명사',
-    u'감탄사',
-    u'관형사',
-    u'특수:금지어',
-    u'특수:파생형',
+    ('명사','명사'),
+    ('동사','동사'),
+    ('형용사','형용사'),
+    ('부사','부사'),
+    ('대명사','대명사'),
+    ('감탄사','감탄사'),
+    ('관형사','관형사'),
+    ('특수:금지어','특수:금지어'),
+    ('특수:파생형','특수:파생형'),
 ]
 
-class Word(db.Model):
+class Word(models.Model):
     ## word data
-    word = db.StringProperty(verbose_name='단어')
-    word_substrings = db.StringListProperty()
-    pos = db.StringProperty(verbose_name='품사', choices=POS_CHOICES)
-    props = db.StringProperty(verbose_name='속성')
-    stem = db.StringProperty(verbose_name='어근')
-    etym = db.StringProperty(verbose_name='어원')
-    orig = db.StringProperty(verbose_name='본딧말')
-    comment = db.TextProperty(verbose_name='부가 설명')
+    word = models.CharField(verbose_name='단어')
+    #word_substrings = models.StringListProperty()
+    pos = models.CharField(verbose_name='품사', choices=POS_CHOICES)
+    props = models.CharField(verbose_name='속성')
+    stem = models.CharField(verbose_name='어근')
+    etym = models.CharField(verbose_name='어원')
+    orig = models.CharField(verbose_name='본딧말')
+    comment = models.CharField(verbose_name='부가 설명')
     class Meta:
         abstract = True
     def rebuild_substrings(self):
@@ -71,13 +70,12 @@ class Word(db.Model):
 # word entry in dictionary
 class Entry(Word):
     ## edit
-    date = db.DateTimeProperty()
-    editors = db.ListProperty(db.Key)
-    editor = db.ReferenceProperty(User, collection_name='entry_editor_set')
+    date = models.DateTimeField()
+    #editors = models.ListProperty(models.Key)
+    editor = models.ForeignKey(User)
     ## status
-    valid = db.BooleanProperty(default=True)
-    #overrides = db.SelfReferenceProperty(collection_name='entry_overrides_set'
-    overrides = db.SelfReferenceProperty()
+    valid = models.BooleanField(default=True)
+    overrides = models.ForeignKey('self')
     # class Meta:
     #     ordering = ['word', 'pos', 'valid']
     def __unicode__(self):
@@ -104,32 +102,26 @@ PROPOSAL_ACTION_CHOCIES = [
 ]
 
 PROPOSAL_STATUS_CHOICES = [
-    'DRAFT',
-    'VOTING',
-    'CANCELED',
-    'APPROVED',
-    'REJECTED',
-    'EXPIRED',
-#     ('DRAFT', '편집 중'),
-#     ('VOTING', '투표 중'),
-#     ('CANCELED', '취소'),
-#     ('APPROVED', '허용'),
-#     ('REJECTED', '거절'),
-#     ('EXPIRED', '만료'),
+    ('DRAFT', '편집 중'),
+    ('VOTING', '투표 중'),
+    ('CANCELED', '취소'),
+    ('APPROVED', '허용'),
+    ('REJECTED', '거절'),
+    ('EXPIRED', '만료'),
 ]
 
 class Proposal(Word):
     # ## edit
-    date = db.DateTimeProperty(verbose_name='제안 시각')
-    editor = db.ReferenceProperty(User, collection_name='proposal_editor_set')
-    action = db.StringProperty(verbose_name='동작',
+    date = models.DateTimeField(verbose_name='제안 시각')
+    editor = models.ForeignKey(User)
+    action = models.CharField(verbose_name='동작',
                                choices=PROPOSAL_ACTION_CHOCIES)
-    rationale = db.TextProperty(verbose_name='제안 이유')
-    old_entry = db.ReferenceProperty(Entry, collection_name='proposal_old_entry_set')
+    rationale = models.CharField(verbose_name='제안 이유')
+    old_entry = models.ForeignKey(Entry)
     # ## status
-    status = db.StringProperty(choices=PROPOSAL_STATUS_CHOICES)
-    new_entry = db.ReferenceProperty(Entry, collection_name='proposal_new_entry_set')
-    status_date = db.DateTimeProperty()
+    status = models.CharField(choices=PROPOSAL_STATUS_CHOICES)
+    new_entry = models.ForeignKey(Entry)
+    status_date = models.DateTimeField()
     class Meta:
     #    ordering = ['-date', 'status', 'action']
         permissions = [
@@ -210,17 +202,16 @@ class Proposal(Word):
             self.save()
 
 VOTE_CHOICES = [
-    'YES',
-    'NO',
+    ('YES', '예'),
+    ('NO', '아니요'),
 ]
 
-class Vote(db.Model):
-    date = db.DateTimeProperty()
-    reviewer = db.ReferenceProperty(User)
-    proposal = db.ReferenceProperty(Proposal)
-    vote = db.StringProperty(verbose_name='찬반', choices=VOTE_CHOICES,
-                             required=True)
-    reason = db.TextProperty(verbose_name='이유')
+class Vote(models.Model):
+    date = models.DateTimeField()
+    reviewer = models.ForeignKey(User)
+    proposal = models.ForeignKey(Proposal)
+    vote = models.CharField(verbose_name='찬반', choices=VOTE_CHOICES)
+    reason = models.CharField(verbose_name='이유')
     def __unicode__(self):
         return '%s on %s by %s' % (self.vote,
                                    self.proposal.key().id(), self.reviewer.username)

@@ -1,0 +1,38 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>{% block title %}갈퀴{% endblock %}</title>
+<link rel="shortcut icon" href="{% url 'favicon' %}" />
+<link rel="stylesheet" type="text/css" href="{% url 'css' path='base.css' %}">
+{% block style %}{% endblock %}{% block script %}{% endblock %}
+</head>
+<body>
+<div id="header">
+<div id="usernav">
+{% if user.is_authenticated %}
+{% if perms.galkwi.can_propose %}
+<a href="{% url 'profile' %}">{{ user.username }}님</a>
+{% else %}
+<a href="{% url 'register' %}">참여하기</a>
+{% endif %}
+<a href="{% url 'django.contrib.auth.views.logout' %}">로그아웃</a>
+{% else %}
+<a href="{% url 'django.contrib.auth.views.login' %}">로그인</a>
+{% endif %}
+</div>
+<div id="sitename"><h1>갈퀴</h1></div>
+<div id="navbar">
+<a href="{% url 'home' %}">홈</a>
+<a href="{% url 'entry_index' %}">검색</a>
+<a href="{% url 'proposal_index' %}">제안</a>
+<!-- <a href="/stat/">통계</a> -->
+</div>
+</div>
+{% block subnavbar %}{% endblock %}{% block content %}{% endblock %}
+<div id="footer">
+<hr/>
+<div><p>갈퀴 단어 정보 시스템</p></div>
+<div id="license"><p>사이트의 데이터는 <a href="http://code.google.com/p/spellcheck-ko/">맞춤법 검사 프로젝트</a>에서 <a href="http://www.mozilla.org/MPL/">MPL/GPL/LGPL 라이선스</a>로 공개됩니다</p></div>
+</div>
+</body>
+</html>

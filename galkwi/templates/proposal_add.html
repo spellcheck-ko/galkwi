@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="proposal">
+{% if submitted_proposal %}
+<ul class="messagelist"><a href="{% url 'proposal' proposal_id=submitted_proposal.key.id %}">{{ submitted_proposal.word }}</a>({{ submitted_proposal.pos }})' 제안이 잘 생성되었습니다.</ul>
+{% endif %}
+<form action="" method="POST">
+<table>
+{{ form }}
+</table>
+<input type="submit" name="_addanother" value="저장하고 새 제안추가" />
+<input type="submit" value="저장하기" />
+</form>
+
+</div>
+{% endblock %}

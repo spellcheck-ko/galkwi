@@ -7,8 +7,8 @@ MIN_DAYS = 1
 
 from django.http import HttpResponse
 from datetime import datetime
-from google.appengine.ext import db
-from google.appengine.api.datastore import Query
+#from google.appengine.ext import db
+#from google.appengine.api.datastore import Query
 from galkwi.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required
