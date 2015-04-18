@@ -36,7 +36,49 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
+
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # ... include the providers you want to enable:
+    #'allauth.socialaccount.providers.amazon',
+    #'allauth.socialaccount.providers.angellist',
+    #'allauth.socialaccount.providers.bitbucket',
+    #'allauth.socialaccount.providers.bitly',
+    #'allauth.socialaccount.providers.coinbase',
+    #'allauth.socialaccount.providers.dropbox',
+    #'allauth.socialaccount.providers.facebook',
+    #'allauth.socialaccount.providers.feedly',
+    #'allauth.socialaccount.providers.flickr',
+    #'allauth.socialaccount.providers.foursquare',
+    #'allauth.socialaccount.providers.fxa',
+    #'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+    #'allauth.socialaccount.providers.hubic',
+    #'allauth.socialaccount.providers.instagram',
+    #'allauth.socialaccount.providers.linkedin',
+    #'allauth.socialaccount.providers.linkedin_oauth2',
+    #'allauth.socialaccount.providers.mailru',
+    #'allauth.socialaccount.providers.oauth',
+    #'allauth.socialaccount.providers.oauth2',
+    #'allauth.socialaccount.providers.odnoklassniki',
+    #'allauth.socialaccount.providers.openid',
+    #'allauth.socialaccount.providers.orcid',
+    #'allauth.socialaccount.providers.paypal',
+    #'allauth.socialaccount.providers.persona',
+    #'allauth.socialaccount.providers.soundcloud',
+    #'allauth.socialaccount.providers.stackexchange',
+    #'allauth.socialaccount.providers.tumblr',
+    #'allauth.socialaccount.providers.twitch',
+    #'allauth.socialaccount.providers.twitter',
+    #'allauth.socialaccount.providers.vimeo',
+    #'allauth.socialaccount.providers.vk',
+    #'allauth.socialaccount.providers.weibo',
+    #'allauth.socialaccount.providers.windowslive',
+    #'allauth.socialaccount.providers.xing',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -64,9 +106,19 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                ## `allauth` specific context processors
+                'allauth.account.context_processors.account',
+                'allauth.socialaccount.context_processors.socialaccount',
             ],
         },
     },
+]
+
+TEMPLATE_CONTEXT_PROCESSORS = [
+    'django.template.context_processors.request',
+    # `allauth` specific context processors
+    'allauth.account.context_processors.account',
+    'allauth.socialaccount.context_processors.socialaccount',
 ]
 
 WSGI_APPLICATION = 'galkwi.wsgi.application'
@@ -101,3 +153,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SITE_ID = 2
+
+#
+# allauth configuration
+#
+
+AUTHENTICATION_BACKENDS = {
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+}
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+ACCOUNT_EMAIL_REQUIRED = True
+
+SOCIALACCOUNT_QUERY_EMAIL = True

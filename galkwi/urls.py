@@ -1,12 +1,14 @@
-from django.contrib.auth.urls import urlpatterns as auth_patterns
-from django.conf.urls import include, url
+#from django.contrib.auth.urls import urlpatterns as auth_patterns
+from django.conf.urls import include, patterns, url
 from django.contrib import admin
 
 import os
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-urlpatterns = auth_patterns + [
+urlpatterns = [
     url(r'^$', 'galkwi.views.index', name='home'),
+
+    url(r'^accounts/', include('allauth.urls')),
 
     url(r'^entry/$', 'galkwi.views.entry_index', name='entry_index'),
     url(r'^entry/(?P<entry_id>\d+)/$', 'galkwi.views.entry_detail',
@@ -32,7 +34,7 @@ urlpatterns = auth_patterns + [
     url(r'^proposal/recentchanges/$', 'galkwi.views.proposal_recentchanges',
         name='proposal_recentchanges'),
 
-    url(r'^account/profile/$', 'galkwi.views.profile',
+    url(r'^accounts/profile/$', 'galkwi.views.profile',
         name='profile'),
     url(r'^account/register/$', 'galkwi.views.register',
         name='register'),

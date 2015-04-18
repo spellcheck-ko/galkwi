@@ -15,9 +15,9 @@
 {% else %}
 <a href="{% url 'register' %}">참여하기</a>
 {% endif %}
-<a href="{% url 'django.contrib.auth.views.logout' %}">로그아웃</a>
+<a href="{% url 'account_logout' %}">로그아웃</a>
 {% else %}
-<a href="{% url 'django.contrib.auth.views.login' %}">로그인</a>
+<a href="{% url 'account_login' %}">로그인</a>
 {% endif %}
 </div>
 <div id="sitename"><h1>갈퀴</h1></div>
