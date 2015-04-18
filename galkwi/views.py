@@ -77,9 +77,7 @@ PROPOSALS_PAGE_RANGE = 3
 
 def proposal_index(request):
     context = RequestContext(request)
-    query = Proposal.all()
-    query.filter('status =', 'VOTING')
-    query.order('-date')
+    query = Proposal.objects.filter(status='VOTING').order_by('-date')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
@@ -121,7 +119,7 @@ def proposal_remove(request, entry_id):
     if not entry.valid:
         return HttpResponseBadRequest(request)
     # ensure there is no other running proposal on this entry
-    existing = Proposal.all().filter('old_entry=', 'entry').filter('status=', 'VOTING')
+    existing = Proposal.objects.filter(old_entry='entry').filter(status='VOTING')
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -150,7 +148,7 @@ def proposal_update(request, entry_id):
     if not entry.valid:
         return HttpResponseBadRequest(request)
     # ensure there is no other proposal on this entry
-    existing = Proposal.all().filter('old_entry =', entry).filter('status =', 'VOTING')
+    existing = Proposal.objects.filter(old_entry=entry).filter(status='VOTING')
     if existing:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -184,16 +182,16 @@ def proposal_detail(request, proposal_id):
     proposal = Proposal.get_by_id(int(proposal_id))
     #proposal = get_object_or_404(Proposal, pk=proposal_id)
     context['proposal'] = proposal
-    votes = Vote.all().filter('proposal =', proposal)
+    votes = Vote.objects.filter(proposal=proposal)
     context['votes'] = votes.fetch(100)
-    votes = Vote.all().filter('proposal =', proposal).filter('vote =', 'YES')
+    votes = Vote.objects.filter(proposal=proposal).filter(vote='YES')
     context['votes_yes_count'] = votes.count()
-    votes = Vote.all().filter('proposal =', proposal).filter('vote =', 'NO')
+    votes = Vote.objects.filter(proposal=proposal).filter(vote='NO')
     context['votes_no_count'] = votes.count()
     # vote form if possible
     if proposal.status == 'VOTING' and request.user.has_perm('galkwi.can_vote'):
         # retrieve previous vote if any
-        vote = Vote.all().filter('proposal =', proposal).filter('reviewer =', request.user).get()
+        vote = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user).get()
         context['myvote'] = vote
         if vote:
             form = ProposalVoteForm(instance=vote)
@@ -205,9 +203,9 @@ def proposal_detail(request, proposal_id):
 
 def proposal_vote_one(request):
     context = RequestContext(request)
-    proposals = Proposal.all().filter('status =', 'VOTING').order('date')
+    proposals = Proposal.objects.filter(status='VOTING').order('date')
     for proposal in proposals:
-        myvote = Vote.all().filter('proposal =', proposal).filter('reviewer =', request.user).get()
+        myvote = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user).get()
         if not myvote:
             return HttpResponseRedirect(proposal.get_absolute_url())
     return render_to_response('proposal_vote_end.html', context)
@@ -226,7 +224,7 @@ def proposal_vote(request, proposal_id):
             instance = form.save(commit=False)
 
             # Update the previous vote
-            query = Vote.all().filter('proposal =', proposal).filter('reviewer =', request.user)
+            query = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user)
             prev = query.get()
             if prev:
                 prev.vote = instance.vote
@@ -277,7 +275,7 @@ proposal_vote_no = permission_required('galkwi.can_vote')(proposal_vote_no)
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
-    query = Proposal.all().filter('status_date <', datetime.now())
+    query = Proposal.objects.filter(status_date<datetime.now())
     query.order('-status_date')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     page = int(request.GET.get('page', '1'))
