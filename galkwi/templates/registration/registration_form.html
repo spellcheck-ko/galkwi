@@ -2,10 +2,10 @@
 {% block title %}{{ block.super }} | 계정 등록{% endblock %}
 {% block content %}
 
-<form method="post" action="">
 {% include "registration/terms.html" %}
-
-{{ form.as_p }}
-<input type="submit" value="등록" />
+<form method="post" action="">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="등록" />
 </form>
 {% endblock %}

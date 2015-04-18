@@ -59,7 +59,7 @@
 </table>
 {% endifequal %}
 {% ifequal proposal.status "VOTING" %}{% ifequal proposal.editor user %}
-<form action="{% url 'proposal_cancel' proposal_id=proposal.key.id %}" method="post">
+<form action="{% url 'proposal_cancel' proposal_id=proposal.key.id %}" method="post">{% csrf_token %}
 {{ cancel_form }}
 <input type="submit" value="제안 취소" />
 </form>
@@ -82,7 +82,7 @@
 {% endifnotequal %}
 {% ifequal proposal.status "VOTING" %}{% if perms.galkwi.can_vote %}
 <h3>투표하기</h3>
-<form action="{% url 'proposal_vote' proposal_id=proposal.key.id %}" method="POST">
+<form action="{% url 'proposal_vote' proposal_id=proposal.key.id %}" method="POST">{% csrf_token %}
 <table>
 {{ vote_form }}
 </table>
