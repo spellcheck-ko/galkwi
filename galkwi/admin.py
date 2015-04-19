@@ -1,8 +1,7 @@
 from django.contrib import admin
 from galkwi.models import *
 
-WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment',
-               'word_substrings']
+WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment']
 
 class EntryAdmin(admin.ModelAdmin):
     fieldsets = [

@@ -1,0 +1,4 @@
+DEBUG = True
+DATABASE_USER = 'dbuser'
+DATABASE_PASSWORD = 'dbpassword'
+DATABASE_NAME = 'dbname'

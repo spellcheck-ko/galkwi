@@ -15,6 +15,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+import galkwi.settings_private as private
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -23,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'pjj31(a+#hety%b-we0cg5medx(pzvhc29&zys3o(1w!d-c6*+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = private.DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -38,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.staticfiles',
-
 
     'allauth',
     'allauth.account',
@@ -79,6 +79,8 @@ INSTALLED_APPS = (
     #'allauth.socialaccount.providers.weibo',
     #'allauth.socialaccount.providers.windowslive',
     #'allauth.socialaccount.providers.xing',
+
+    'galkwi',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -129,8 +131,12 @@ WSGI_APPLICATION = 'galkwi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': private.DATABASE_USER,
+        'PASSWORD': private.DATABASE_PASSWORD,
+        'NAME': private.DATABASE_NAME,
     }
 }
 
@@ -154,7 +160,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SITE_ID = 2
+SITE_ID = 1
 
 #
 # allauth configuration
@@ -173,3 +179,4 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 
 SOCIALACCOUNT_QUERY_EMAIL = True
+

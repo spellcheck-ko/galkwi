@@ -2,18 +2,19 @@
 
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
-#from ragendja.dbutils import get_object_or_404
 from django.template import RequestContext
 from django.core.paginator import Paginator, InvalidPage
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 from galkwi.models import *
 from galkwi.forms import *
 
 def index(request):
     context = RequestContext(request)
-    return render_to_response('index.html', context)
+    return render_to_response('index.html', context_instance=context)
 
 def register(request):
     context = RequestContext(request)
@@ -22,17 +23,18 @@ def register(request):
         if form.is_valid():
             agree = form.cleaned_data['agree']
             if agree:
-                request.user.user_permissions = ['galkwi.can_propose']
+                ct = ContentType.objects.get_for_model(User)
+                p = Permission.objects.get(content_type=ct, codename='can_propose')
+                request.user.user_permissions.add(p)
                 request.user.save()
-                return render_to_response('registration/registration_complete.html', context)
+                return render_to_response('registration/registration_complete.html', context_instance=context)
     else:
         form = UserRegistrationForm()
-    context['form'] = form
-    return render_to_response('registration/registration_form.html', context)
+    return render_to_response('registration/registration_form.html', { 'form': form }, context_instance=context)
 
 def profile(request):
     context = RequestContext(request)
-    return render_to_response('registration/profile.html', context)
+    return render_to_response('registration/profile.html', context_instance=context)
 
 ENTRIES_PER_PAGE = 25
 
@@ -43,9 +45,7 @@ def entry_index(request):
         if form.is_valid():
             word = form.cleaned_data['word']
             context['word'] = word
-            query = Entry.all()
-            query.filter('valid =', True)
-            query.filter('word_substrings =', word)
+            query = Entry.objects.filter(valid =True).filter(word=word)
             query.order('word')
             entries = query.fetch(1000)
             paginator = Paginator(query, ENTRIES_PER_PAGE)
@@ -58,19 +58,18 @@ def entry_index(request):
             form = EntrySearchForm()
     else:
         form = EntrySearchForm()
-    context['form'] = form
-    return render_to_response('entry_index.html', context)
+    return render_to_response('entry_index.html', { 'form': form }, context_instance=context)
 
 def entry_detail(request, entry_id):
     context = RequestContext(request)
     entry = Entry.get_by_id(int(entry_id))
     #entry = get_object_or_404(Entry, pk=entry_id)
     context['entry'] = entry
-    context['proposals_voting'] = Proposal.all().filter('old_entry =', entry).filter('status =', 'VOTING')
-    context['proposals_new'] = Proposal.all().filter('new_entry =', entry)
-    context['proposals_prev'] = Proposal.all().filter('old_entry =', entry).filter('status !=', 'VOTING')
+    context['proposals_voting'] = Proposal.objects.filter(old_entry=entry).filter(status='VOTING')
+    context['proposals_new'] = Proposal.objects.filter(new_entry=entry)
+    context['proposals_prev'] = Proposal.objects.filter(old_entry=entry).filter(status!='VOTING')
                                                         
-    return render_to_response('entry_detail.html', context)
+    return render_to_response('entry_detail.html', context_instance=context)
 
 PROPOSALS_PER_PAGE = 25
 PROPOSALS_PAGE_RANGE = 3
@@ -87,8 +86,9 @@ def proposal_index(request):
         context['page'] = paginator.page(page)
     except InvalidPage:
         raise Http404
-    return render_to_response('proposal_index.html', context)
+    return render_to_response('proposal_index.html', context_instance=context)
 
+@permission_required('galkwi.can_propose')
 def proposal_add(request):
     context = RequestContext(request)
     if request.method == 'POST':
@@ -107,10 +107,9 @@ def proposal_add(request):
                 return HttpResponseRedirect(instance.get_absolute_url())
     else:
         form = ProposalEditAddForm()
-    context['form'] = form
-    return render_to_response('proposal_add.html', context)
-proposal_add = permission_required('galkwi.can_propose')(proposal_add)
+    return render_to_response('proposal_add.html', { 'form': form }, context_instance=context)
 
+@permission_required('galkwi.can_propose')
 def proposal_remove(request, entry_id):
     context = RequestContext(request)
     entry = Entry.get_by_id(int(entry_id))
@@ -136,10 +135,9 @@ def proposal_remove(request, entry_id):
     else:
         form = ProposalEditRemoveForm()
     context['entry'] = entry
-    context['form'] = form
-    return render_to_response('proposal_remove.html', context)
-proposal_remove = permission_required('galkwi.can_propose')(proposal_remove)
+    return render_to_response('proposal_remove.html', { 'form': form }, context_instance=context)
 
+@permission_required('galkwi.can_propose')
 def proposal_update(request, entry_id):
     context = RequestContext(request)
     entry = Entry.get_by_id(int(entry_id))
@@ -173,9 +171,7 @@ def proposal_update(request, entry_id):
         proposal.comment = entry.comment
         form = ProposalEditUpdateForm(instance=proposal)
     context['entry'] = entry
-    context['form'] = form
-    return render_to_response('proposal_update.html', context)
-proposal_update = permission_required('galkwi.can_propose')(proposal_update)
+    return render_to_response('proposal_update.html', { 'form': form }, context_instance=context)
 
 def proposal_detail(request, proposal_id):
     context = RequestContext(request)
@@ -199,8 +195,9 @@ def proposal_detail(request, proposal_id):
             form = ProposalVoteForm()
         context['vote_form'] = form
         context['cancel_form'] = ProposalCancelForm()
-    return render_to_response('proposal_detail.html', context)
+    return render_to_response('proposal_detail.html', context_instance=context)
 
+@permission_required('galkwi.can_vote')
 def proposal_vote_one(request):
     context = RequestContext(request)
     proposals = Proposal.objects.filter(status='VOTING').order('date')
@@ -208,9 +205,9 @@ def proposal_vote_one(request):
         myvote = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user).get()
         if not myvote:
             return HttpResponseRedirect(proposal.get_absolute_url())
-    return render_to_response('proposal_vote_end.html', context)
-proposal_vote_one = permission_required('galkwi.can_vote')(proposal_vote_one)
+    return render_to_response('proposal_vote_end.html', context_instance=context)
 
+@permission_required('galkwi.can_vote')
 def proposal_vote(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
@@ -245,8 +242,8 @@ def proposal_vote(request, proposal_id):
             return HttpResponseBadRequest(request)
     else:
         return HttpResponseBadRequest(request)
-proposal_vote = permission_required('galkwi.can_vote')(proposal_vote)
 
+@permission_required('galkwi.can_vote')
 def proposal_cancel(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
@@ -265,13 +262,12 @@ def proposal_cancel(request, proposal_id):
             return HttpResponseBadRequest(request)
     else:
         return HttpResponseBadRequest(request)
-proposal_cancel = permission_required('galkwi.can_propose')(proposal_cancel)
 
+@permission_required('galkwi.can_vote')
 def proposal_vote_no(request, proposal_id):
     context = RequestContext(request)
     proposal = get_object_or_404(Proposal, pk=proposal_id)
     return HttpResponseRedirect(proposal.get_absolute_url())
-proposal_vote_no = permission_required('galkwi.can_vote')(proposal_vote_no)
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
@@ -283,5 +279,5 @@ def proposal_recentchanges(request):
         context['page'] = paginator.page(page)
     except InvalidPage:
         raise Http404
-    return render_to_response('proposal_recentchanges.html', context)
+    return render_to_response('proposal_recentchanges.html', context_instance=context)
 

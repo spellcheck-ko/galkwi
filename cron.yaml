@@ -1,4 +1,0 @@
-cron:
-- description: vote counting
-  url: /tasks/count
-  schedule: every 6 hours

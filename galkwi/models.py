@@ -4,25 +4,25 @@ from django.db.models import permalink, signals
 from django.contrib.auth.models import User
 from datetime import datetime
 
-class Person(models.Model):
-    user = User()
-
-class UserProfile(models.Model):
-    pass
+#class Person(models.Model):
+#    user = User()
+#
+#class UserProfile(models.Model):
+#    pass
 
 #    user = models.ForeignKey(User, unique=True)
 #    level = models.IntegerField(default=1)
 #    def title(self):
 #        if (self.level == 0):
-#            return u'구경꾼'
+#            return '구경꾼'
 #        elif (self.level < 100):
-#            return u'편집자'
+#            return '편집자'
 #        elif (self.level < 200):
-#            return u'검토자'
+#            return '검토자'
 #        elif (self.level < 1000):
-#            return u'관리자'
+#            return '관리자'
 #        else:
-#            return u'킹왕짱'
+#            return '킹왕짱'
 #    def is_editor(self):
 #        return (self.level > 0)
 #    def is_reviewer(self):
@@ -47,24 +47,15 @@ POS_CHOICES = [
 
 class Word(models.Model):
     ## word data
-    word = models.CharField(verbose_name='단어')
-    #word_substrings = models.StringListProperty()
-    pos = models.CharField(verbose_name='품사', choices=POS_CHOICES)
-    props = models.CharField(verbose_name='속성')
-    stem = models.CharField(verbose_name='어근')
-    etym = models.CharField(verbose_name='어원')
-    orig = models.CharField(verbose_name='본딧말')
-    comment = models.CharField(verbose_name='부가 설명')
+    word = models.CharField(verbose_name='단어', max_length=100)
+    pos = models.CharField(verbose_name='품사', max_length=100, choices=POS_CHOICES)
+    props = models.CharField(verbose_name='속성', max_length=100)
+    stem = models.CharField(verbose_name='어근', max_length=100)
+    etym = models.CharField(verbose_name='어원', max_length=100)
+    orig = models.CharField(verbose_name='본딧말', max_length=100)
+    comment = models.CharField(verbose_name='부가 설명', max_length=1000)
     class Meta:
         abstract = True
-    def rebuild_substrings(self):
-        substrings = []
-        if self.word:
-            length = len(unicode(self.word))
-            for a in range(0, length):
-                for b in range(a + 1, length + 1):
-                    substrings.append(self.word[a:b])
-        self.word_substrings = substrings
         
 
 # word entry in dictionary
@@ -78,7 +69,7 @@ class Entry(Word):
     overrides = models.ForeignKey('self')
     # class Meta:
     #     ordering = ['word', 'pos', 'valid']
-    def __unicode__(self):
+    def __str__(self):
         name = '%d: %s (%s)' % (self.key().id(), self.word, self.pos)
         if not self.valid:
             name += ' INVALID'
@@ -93,12 +84,9 @@ class Entry(Word):
     #    return ('galkwi.views.entry_detail', (), {'entry_id': self.id})
 
 PROPOSAL_ACTION_CHOCIES = [
-    'ADD',
-    'REMOVE',
-    'UPDATE',
-#     ('ADD', '추가'),
-#     ('REMOVE', '제거'),
-#     ('UPDATE', '변경'),
+    ('ADD', '추가'),
+    ('REMOVE', '제거'),
+    ('UPDATE', '변경'),
 ]
 
 PROPOSAL_STATUS_CHOICES = [
@@ -114,20 +102,19 @@ class Proposal(Word):
     # ## edit
     date = models.DateTimeField(verbose_name='제안 시각')
     editor = models.ForeignKey(User)
-    action = models.CharField(verbose_name='동작',
-                               choices=PROPOSAL_ACTION_CHOCIES)
-    rationale = models.CharField(verbose_name='제안 이유')
-    old_entry = models.ForeignKey(Entry)
+    action = models.CharField(verbose_name='동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
+    rationale = models.CharField(verbose_name='제안 이유', max_length=1000)
+    old_entry = models.ForeignKey(Entry, related_name='+')
     # ## status
-    status = models.CharField(choices=PROPOSAL_STATUS_CHOICES)
-    new_entry = models.ForeignKey(Entry)
+    status = models.CharField(max_length=1000, choices=PROPOSAL_STATUS_CHOICES)
+    new_entry = models.ForeignKey(Entry, related_name='proposal')
     status_date = models.DateTimeField()
     class Meta:
     #    ordering = ['-date', 'status', 'action']
         permissions = [
             ("can_propose", "Can propose an action"),
         ]
-    def __unicode__(self):
+    def __str__(self):
         return '%d: %s by %s' % (self.key().id(), self.action, self.editor.username)
     def get_absolute_url(self):
         return '/proposal/%d/' % self.key().id()
@@ -210,9 +197,9 @@ class Vote(models.Model):
     date = models.DateTimeField()
     reviewer = models.ForeignKey(User)
     proposal = models.ForeignKey(Proposal)
-    vote = models.CharField(verbose_name='찬반', choices=VOTE_CHOICES)
-    reason = models.CharField(verbose_name='이유')
-    def __unicode__(self):
+    vote = models.CharField(verbose_name='찬반', max_length=1000, choices=VOTE_CHOICES)
+    reason = models.CharField(verbose_name='이유', max_length=1000)
+    def __str__(self):
         return '%s on %s by %s' % (self.vote,
                                    self.proposal.key().id(), self.reviewer.username)
     class Meta:
