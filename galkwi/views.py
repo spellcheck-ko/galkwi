@@ -23,7 +23,7 @@ def register(request):
         if form.is_valid():
             agree = form.cleaned_data['agree']
             if agree:
-                ct = ContentType.objects.get_for_model(User)
+                ct = ContentType.objects.get_for_model(Proposal)
                 p = Permission.objects.get(content_type=ct, codename='can_propose')
                 request.user.user_permissions.add(p)
                 request.user.save()
@@ -99,6 +99,7 @@ def proposal_add(request):
             instance.date = datetime.now()
             instance.editor = request.user
             instance.status = 'VOTING'
+            instance.status_date = datetime.now()
             instance.save()
             if '_addanother' in request.POST:
                 context['submitted_proposal'] = instance
@@ -175,7 +176,7 @@ def proposal_update(request, entry_id):
 
 def proposal_detail(request, proposal_id):
     context = RequestContext(request)
-    proposal = Proposal.get_by_id(int(proposal_id))
+    proposal = Proposal.objects.get(id=int(proposal_id))
     #proposal = get_object_or_404(Proposal, pk=proposal_id)
     context['proposal'] = proposal
     votes = Vote.objects.filter(proposal=proposal)
