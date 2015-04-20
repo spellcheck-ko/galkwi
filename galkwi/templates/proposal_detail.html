@@ -13,7 +13,7 @@
 <table>
 <tr>
 {% ifequal proposal.status "APPROVED" %}
-  <td><a href="{% url 'entry' entry_id=proposal.new_entry.key.id %}">{{ proposal.word }}</a></td>
+  <td><a href="{% url 'entry' entry_id=proposal.new_entry.id %}">{{ proposal.word }}</a></td>
 {% else %}
   <td>{{ proposal.word }}</td>
 {% endifequal %}
@@ -27,7 +27,7 @@
 <h3>삭제 단어 정보</h3>
 <table>
 <tr>
-  <td><a href="{% url 'entry' entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
+  <td><a href="{% url 'entry' entry_id=proposal.old_entry.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
   <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
   <td>{% if proposal.old_entry.comment %}{{ proposal.old_entry.comment }}{% endif %}</td>
@@ -39,7 +39,7 @@
 <h3>변경 사항</h3>
 <table>
 <tr>
-  <td><a href="{% url 'entry' entry_id=proposal.old_entry.key.id %}">{{ proposal.old_entry.word }}</a></td>
+  <td><a href="{% url 'entry' entry_id=proposal.old_entry.id %}">{{ proposal.old_entry.word }}</a></td>
   <td>{{ proposal.old_entry.pos }}</td>
   <td>{% if proposal.old_entry.props %}{{ proposal.old_entry.props }}{% endif %}</td>
   <td>{% if proposal.old_entry.etym %}{{ proposal.old_entry.etym }}{% endif %}</td>
@@ -47,7 +47,7 @@
 </tr>
 <tr>
   {% ifequal proposal.status "APPROVED" %}
-  <td><a href="{% url 'entry' entry_id=proposal.new_entry.key.id %}">{{ proposal.word }}</a></td>
+  <td><a href="{% url 'entry' entry_id=proposal.new_entry.id %}">{{ proposal.word }}</a></td>
   {% else %}
   <td>{{ proposal.word }}</td>
   {% endifequal %}
@@ -59,7 +59,7 @@
 </table>
 {% endifequal %}
 {% ifequal proposal.status "VOTING" %}{% ifequal proposal.editor user %}
-<form action="{% url 'proposal_cancel' proposal_id=proposal.key.id %}" method="post">{% csrf_token %}
+<form action="{% url 'proposal_cancel' proposal_id=proposal.id %}" method="post">{% csrf_token %}
 {{ cancel_form }}
 <input type="submit" value="제안 취소" />
 </form>
@@ -82,7 +82,7 @@
 {% endifnotequal %}
 {% ifequal proposal.status "VOTING" %}{% if perms.galkwi.can_vote %}
 <h3>투표하기</h3>
-<form action="{% url 'proposal_vote' proposal_id=proposal.key.id %}" method="POST">{% csrf_token %}
+<form action="{% url 'proposal_vote' proposal_id=proposal.id %}" method="POST">{% csrf_token %}
 <table>
 {{ vote_form }}
 </table>

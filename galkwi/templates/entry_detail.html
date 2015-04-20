@@ -20,15 +20,15 @@
 <p>진행 중인 제안</p>
 <table>
 {% for proposal in proposals_voting %}
-<td><a href="{% url 'proposal' proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
 <td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 {% endfor %}
 </table>
 {% else %}
 <p>진행 중인 제안이 없습니다</p>
-<a href="{% url 'proposal_remove' entry_id=entry.key.id %}">삭제 제안하기</a>
-<a href="{% url 'proposal_update' entry_id=entry.key.id %}">변경 제안하기</a>
+<a href="{% url 'proposal_remove' entry_id=entry.id %}">삭제 제안하기</a>
+<a href="{% url 'proposal_update' entry_id=entry.id %}">변경 제안하기</a>
 {% endif %}
 {% else %}
 <p>이 단어는 현재 유효한 단어가 아닙니다.</p>
@@ -38,7 +38,7 @@
 <h3>이 단어를 변경/삭제하는 제안</h3>
 <table>
 {% for proposal in proposals_prev %}
-<td><a href="{% url 'proposal' proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
 <td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 <td>{{ proposal.status }}</td>
@@ -50,7 +50,7 @@
 <h3>이 단어를 만든 제안</h3>
 <table>
 {% for proposal in proposals_new %}
-<td><a href="{% url 'proposal' proposal_id=proposal.key.id %}">{{ proposal.action }}</a></td>
+<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
 <td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
 <td>{{ proposal.editor.username }}</td>
 <td>{{ proposal.status }}</td>

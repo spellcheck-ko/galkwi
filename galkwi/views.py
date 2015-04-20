@@ -82,11 +82,12 @@ def proposal_index(request):
         page = int(request.GET.get('page', '1'))
     except ValueError:
         page = 1
+    data = {}
     try:
-        context['page'] = paginator.page(page)
+        data['page'] = paginator.page(page)
     except InvalidPage:
         raise Http404
-    return render_to_response('proposal_index.html', context_instance=context)
+    return render_to_response('proposal_index.html', data, context_instance=context)
 
 @permission_required('galkwi.can_propose')
 def proposal_add(request):
@@ -178,25 +179,34 @@ def proposal_detail(request, proposal_id):
     context = RequestContext(request)
     proposal = Proposal.objects.get(id=int(proposal_id))
     #proposal = get_object_or_404(Proposal, pk=proposal_id)
-    context['proposal'] = proposal
-    votes = Vote.objects.filter(proposal=proposal)
-    context['votes'] = votes.fetch(100)
-    votes = Vote.objects.filter(proposal=proposal).filter(vote='YES')
-    context['votes_yes_count'] = votes.count()
-    votes = Vote.objects.filter(proposal=proposal).filter(vote='NO')
-    context['votes_no_count'] = votes.count()
+    data = {}
+    data['proposal'] = proposal
+    try:
+        data['votes'] = Vote.objects.get(proposal=proposal)
+    except Vote.DoesNotExist:
+        data['votes'] = []
+    try:
+        data['votes_yes_count'] = Vote.objects.filter(proposal=proposal, vote='YES').count()
+    except Vote.DoesNotExist:
+        data['votes_yes_count'] = 0
+    try:
+        data['votes_no_count'] = Vote.objects.filter(proposal=proposal, vote='NO').count()
+    except Vote.DoesNotExist:
+        data['votes_no_count'] = []
     # vote form if possible
     if proposal.status == 'VOTING' and request.user.has_perm('galkwi.can_vote'):
         # retrieve previous vote if any
-        vote = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user).get()
-        context['myvote'] = vote
+        try:
+            data['myvote'] = Vote.objects.get(proposal=proposal, reviewer=request.user)
+        except Vote.DoesNotExist:
+            pass
         if vote:
             form = ProposalVoteForm(instance=vote)
         else:
             form = ProposalVoteForm()
-        context['vote_form'] = form
-        context['cancel_form'] = ProposalCancelForm()
-    return render_to_response('proposal_detail.html', context_instance=context)
+        data['vote_form'] = form
+        data['cancel_form'] = ProposalCancelForm()
+    return render_to_response('proposal_detail.html', data, context_instance=context)
 
 @permission_required('galkwi.can_vote')
 def proposal_vote_one(request):
