@@ -49,10 +49,6 @@ urlpatterns = [
         {'document_root': ROOT_DIR + '/static/img'}, name='img'),
     url(r'^js/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': ROOT_DIR + '/static/js'}, name='js'),
-    url(r'^favicon\.ico$', 'django.views.static.serve',
-        {'document_root': os.path.join(ROOT_DIR, '/static'),
-         'path': 'favicon.ico'},
-        name='favicon'),
     url(r'^(?P<path>robots\.txt)$', 'django.views.static.serve',
         {'document_root': ROOT_DIR + '/static'}),
     
