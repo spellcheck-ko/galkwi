@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.core import validators
-from django.forms.util import ValidationError
+from django.forms.utils import ValidationError
 from galkwi.models import *
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _

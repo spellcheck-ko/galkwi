@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
-from datetime import datetime
+from django.utils import timezone
 from galkwi.models import *
 from galkwi.forms import *
 
@@ -97,10 +97,10 @@ def proposal_add(request):
         if form.is_valid():
             instance = form.save(commit=False)
             instance.action = 'ADD'
-            instance.date = datetime.now()
+            instance.date = timezone.now()
             instance.editor = request.user
             instance.status = 'VOTING'
-            instance.status_date = datetime.now()
+            instance.status_date = timezone.now()
             instance.save()
             if '_addanother' in request.POST:
                 context['submitted_proposal'] = instance
@@ -129,7 +129,7 @@ def proposal_remove(request, entry_id):
             instance = form.save(commit=False)
             instance.action = 'REMOVE'
             instance.old_entry = entry
-            instance.date = datetime.now()
+            instance.date = timezone.now()
             instance.editor = request.user
             instance.status = 'VOTING'
             instance.save()
@@ -157,7 +157,7 @@ def proposal_update(request, entry_id):
             instance = form.save(commit=False)
             instance.action = 'UPDATE'
             instance.old_entry = entry
-            instance.date = datetime.now()
+            instance.date = timezone.now()
             instance.editor = request.user
             instance.status = 'VOTING'
             instance.save()
@@ -237,13 +237,13 @@ def proposal_vote(request, proposal_id):
             if prev:
                 prev.vote = instance.vote
                 prev.reason = instance.reason
-                prev.date = datetime.now()
+                prev.date = timezone.now()
                 prev.save()
             else:
                 # Create a new vote
                 instance.proposal = proposal
                 instance.reviewer = request.user
-                instance.date = datetime.now()
+                instance.date = timezone.now()
                 instance.save()
             if '_voteone' in request.POST:
                 return HttpResponseRedirect(reverse('proposal_vote_one'))
@@ -282,13 +282,13 @@ def proposal_vote_no(request, proposal_id):
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
-    query = Proposal.objects.filter(status_date<datetime.now())
-    query.order('-status_date')
+    query = Proposal.objects.filter(status_date__lt=timezone.now()).order_by('-status_date')
     paginator = Paginator(query, PROPOSALS_PER_PAGE)
     page = int(request.GET.get('page', '1'))
+    data = {}
     try:
-        context['page'] = paginator.page(page)
+        data['page'] = paginator.page(page)
     except InvalidPage:
         raise Http404
-    return render_to_response('proposal_recentchanges.html', context_instance=context)
+    return render_to_response('proposal_recentchanges.html', data, context_instance=context)
 

@@ -2,7 +2,7 @@
 from django.db import models
 from django.db.models import permalink, signals
 from django.contrib.auth.models import User
-from datetime import datetime
+from django.utils import timezone
 
 #class UserProfile(models.Model):
 #    pass
@@ -121,15 +121,15 @@ class Proposal(Word):
         return super(Proposal, self).save()
     def cancel(self):
         self.status = 'CANCELED'
-        self.status_date = datetime.now()
+        self.status_date = timezone.now()
         self.save()
     def reject(self):
         self.status = 'REJECTED'
-        self.status_date = datetime.now()
+        self.status_date = timezone.now()
         self.save()
     def expire(self):
         self.status = 'EXPIRED'
-        self.status_date = datetime.now()
+        self.status_date = timezone.now()
         self.save()
     def apply(self):
         if self.status != 'VOTING':
@@ -150,14 +150,14 @@ class Proposal(Word):
             entry.save()
             self.new_entry = entry
             self.status = 'APPROVED'
-            self.status_date = datetime.now()
+            self.status_date = timezone.now()
             self.save()
         elif self.action == 'REMOVE':
             entry = self.old_entry
             entry.valid = False
             entry.save()
             self.status = 'APPROVED'
-            self.status_date = datetime.now()
+            self.status_date = timezone.now()
             self.save()
         elif self.action == 'UPDATE':
             entry = Entry()
@@ -180,7 +180,7 @@ class Proposal(Word):
             entry.valid = False
             entry.save()
             self.status = 'APPROVED'
-            self.status_date = datetime.now()
+            self.status_date = timezone.now()
             self.save()
 
 VOTE_CHOICES = [
