@@ -62,7 +62,7 @@ def entry_index(request):
 
 def entry_detail(request, entry_id):
     context = RequestContext(request)
-    entry = Entry.get_by_id(int(entry_id))
+    entry = Entry.objects.get(id=entry_id)
     #entry = get_object_or_404(Entry, pk=entry_id)
     context['entry'] = entry
     context['proposals_voting'] = Proposal.objects.filter(old_entry=entry).filter(status='VOTING')
@@ -114,7 +114,7 @@ def proposal_add(request):
 @permission_required('galkwi.can_propose')
 def proposal_remove(request, entry_id):
     context = RequestContext(request)
-    entry = Entry.get_by_id(int(entry_id))
+    entry = Entry.objects.get(id=entry_id)
     #entry = get_object_or_404(Entry, pk=entry_id)
     # ensure that this entry is valid
     if not entry.valid:
@@ -142,7 +142,7 @@ def proposal_remove(request, entry_id):
 @permission_required('galkwi.can_propose')
 def proposal_update(request, entry_id):
     context = RequestContext(request)
-    entry = Entry.get_by_id(int(entry_id))
+    entry = Entry.objects.get(id=entry_id)
     #entry = get_object_or_404(Entry, pk=entry_id)
     # ensure that this entry is valid
     if not entry.valid:
@@ -182,7 +182,7 @@ def proposal_detail(request, proposal_id):
     data = {}
     data['proposal'] = proposal
     try:
-        data['votes'] = Vote.objects.get(proposal=proposal)
+        data['votes'] = Vote.objects.filter(proposal=proposal)
     except Vote.DoesNotExist:
         data['votes'] = []
     try:
@@ -197,12 +197,10 @@ def proposal_detail(request, proposal_id):
     if proposal.status == 'VOTING' and request.user.has_perm('galkwi.can_vote'):
         # retrieve previous vote if any
         try:
-            data['myvote'] = Vote.objects.get(proposal=proposal, reviewer=request.user)
-        except Vote.DoesNotExist:
-            pass
-        if vote:
+            vote = Vote.objects.get(proposal=proposal, reviewer=request.user)
+            data['myvote'] = vote
             form = ProposalVoteForm(instance=vote)
-        else:
+        except Vote.DoesNotExist:
             form = ProposalVoteForm()
         data['vote_form'] = form
         data['cancel_form'] = ProposalCancelForm()
@@ -223,7 +221,7 @@ def proposal_vote(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
         #proposal = get_object_or_404(Proposal, pk=proposal_id)
-        proposal = Proposal.get_by_id(int(proposal_id))
+        proposal = Proposal.objects.get(id=proposal_id)
         if proposal.status != 'VOTING':
             return HttpResponseBadRequest(request)
         # retrieve previous vote if any
@@ -232,14 +230,13 @@ def proposal_vote(request, proposal_id):
             instance = form.save(commit=False)
 
             # Update the previous vote
-            query = Vote.objects.filter(proposal=proposal).filter(reviewer=request.user)
-            prev = query.get()
-            if prev:
+            try:
+                prev = Vote.objects.get(proposal=proposal, reviewer=request.user)
                 prev.vote = instance.vote
                 prev.reason = instance.reason
                 prev.date = timezone.now()
                 prev.save()
-            else:
+            except Vote.DoesNotExist:
                 # Create a new vote
                 instance.proposal = proposal
                 instance.reviewer = request.user
@@ -254,11 +251,11 @@ def proposal_vote(request, proposal_id):
     else:
         return HttpResponseBadRequest(request)
 
-@permission_required('galkwi.can_vote')
+@permission_required('galkwi.can_propose')
 def proposal_cancel(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
-        proposal = Proposal.get_by_id(int(proposal_id))
+        proposal = Proposal.objects.get(id=proposal_id)
         #proposal = get_object_or_404(Proposal, pk=proposal_id)
         # check if it's my proposal
         if proposal.editor != request.user:

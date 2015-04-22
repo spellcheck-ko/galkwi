@@ -31,26 +31,26 @@ from django.utils import timezone
 
 
 POS_CHOICES = [
-    ('noun',u'명사'),
-    ('verb',u'동사'),
-    ('adjective',u'형용사'),
-    ('adverb',u'부사'),
-    ('pronoun',u'대명사'),
-    ('interjection',u'감탄사'),
-    ('determiner',u'관형사'),
-    ('special:forbidden',u'특수:금지어'),
-    ('special:derived',u'특수:파생형'),
+    ('NOUN','명사'),
+    ('VERB','동사'),
+    ('ADJECTIVE','형용사'),
+    ('ADVERB','부사'),
+    ('PRONOUN','대명사'),
+    ('INTERJECTION','감탄사'),
+    ('DETERMINER','관형사'),
+    ('SPECIAL:FORBIDDEN','특수:금지어'),
+    ('SPECIAL:DERIVED','특수:파생형'),
 ]
 
 class Word(models.Model):
     ## word data
-    word = models.CharField(verbose_name=u'단어', max_length=100)
-    pos = models.CharField(verbose_name=u'품사', max_length=100, choices=POS_CHOICES)
-    props = models.CharField(verbose_name=u'속성', max_length=100, blank=True)
-    stem = models.CharField(verbose_name=u'어근', max_length=100, blank=True)
-    etym = models.CharField(verbose_name=u'어원', max_length=100, blank=True)
-    orig = models.CharField(verbose_name=u'본딧말', max_length=100, blank=True)
-    comment = models.CharField(verbose_name=u'부가 설명', max_length=1000, blank=True)
+    word = models.CharField(verbose_name='단어', max_length=100)
+    pos = models.CharField(verbose_name='품사', max_length=100, choices=POS_CHOICES)
+    props = models.CharField(verbose_name='속성', max_length=100, blank=True)
+    stem = models.CharField(verbose_name='어근', max_length=100, blank=True)
+    etym = models.CharField(verbose_name='어원', max_length=100, blank=True)
+    orig = models.CharField(verbose_name='본딧말', max_length=100, blank=True)
+    comment = models.CharField(verbose_name='부가 설명', max_length=1000, blank=True)
     class Meta:
         abstract = True
         
@@ -80,26 +80,26 @@ class Entry(Word):
     #    return ('galkwi.views.entry_detail', (), {'entry_id': self.id})
 
 PROPOSAL_ACTION_CHOCIES = [
-    ('ADD', u'추가'),
-    ('REMOVE', u'제거'),
-    ('UPDATE', u'변경'),
+    ('ADD', '추가'),
+    ('REMOVE', '제거'),
+    ('UPDATE', '변경'),
 ]
 
 PROPOSAL_STATUS_CHOICES = [
-    ('DRAFT', u'편집 중'),
-    ('VOTING', u'투표 중'),
-    ('CANCELED', u'취소'),
-    ('APPROVED', u'허용'),
-    ('REJECTED', u'거절'),
-    ('EXPIRED', u'만료'),
+    ('DRAFT', '편집 중'),
+    ('VOTING', '투표 중'),
+    ('CANCELED', '취소'),
+    ('APPROVED', '허용'),
+    ('REJECTED', '거절'),
+    ('EXPIRED', '만료'),
 ]
 
 class Proposal(Word):
     # ## edit
-    date = models.DateTimeField(verbose_name=u'제안 시각')
+    date = models.DateTimeField(verbose_name='제안 시각')
     editor = models.ForeignKey(User)
-    action = models.CharField(verbose_name=u'동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
-    rationale = models.CharField(verbose_name=u'제안 이유', max_length=1000, blank=True)
+    action = models.CharField(verbose_name='동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
+    rationale = models.CharField(verbose_name='제안 이유', max_length=1000, blank=True)
     old_entry = models.ForeignKey(Entry, related_name='+', null=True)
     # ## status
     status = models.CharField(max_length=1000, choices=PROPOSAL_STATUS_CHOICES)
@@ -184,16 +184,16 @@ class Proposal(Word):
             self.save()
 
 VOTE_CHOICES = [
-    ('YES', u'예'),
-    ('NO', u'아니요'),
+    ('YES', '예'),
+    ('NO', '아니요'),
 ]
 
 class Vote(models.Model):
     date = models.DateTimeField()
     reviewer = models.ForeignKey(User)
     proposal = models.ForeignKey(Proposal)
-    vote = models.CharField(verbose_name=u'찬반', max_length=1000, choices=VOTE_CHOICES)
-    reason = models.CharField(verbose_name=u'이유', max_length=1000, blank=True)
+    vote = models.CharField(verbose_name='찬반', max_length=1000, choices=VOTE_CHOICES)
+    reason = models.CharField(verbose_name='이유', max_length=1000, blank=True)
     def __str__(self):
         return '%s on %s by %s' % (self.vote,
                                    self.proposal.id, self.reviewer.username)
