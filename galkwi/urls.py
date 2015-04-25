@@ -34,6 +34,9 @@ urlpatterns = [
     url(r'^proposal/recentchanges/$', 'galkwi.views.proposal_recentchanges',
         name='proposal_recentchanges'),
 
+    url(r'^stat/$', 'galkwi.views.stat',
+        name='stat'),
+
     url(r'^accounts/profile/$', 'galkwi.views.profile',
         name='profile'),
     url(r'^account/register/$', 'galkwi.views.register',

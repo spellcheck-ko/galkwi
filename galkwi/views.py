@@ -289,3 +289,7 @@ def proposal_recentchanges(request):
         raise Http404
     return render_to_response('proposal_recentchanges.html', data, context_instance=context)
 
+def stat(request):
+    context = RequestContext(request)
+    return render_to_response('stat.html', context_instance=context)
+    
