@@ -4,42 +4,21 @@ from django.db.models import permalink, signals
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-#class UserProfile(models.Model):
-#    pass
-
-#    user = models.ForeignKey(User, unique=True)
-#    level = models.IntegerField(default=1)
-#    def title(self):
-#        if (self.level == 0):
-#            return '구경꾼'
-#        elif (self.level < 100):
-#            return '편집자'
-#        elif (self.level < 200):
-#            return '검토자'
-#        elif (self.level < 1000):
-#            return '관리자'
-#        else:
-#            return '킹왕짱'
-#    def is_editor(self):
-#        return (self.level > 0)
-#    def is_reviewer(self):
-#        return (self.level >= 100)
-#    def is_admin(self):
-#        return (self.level >= 900)
-#    def is_king(self):
-#        return (self.level >= 1000)
-
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    tos_rev = models.DateTimeField(verbose_name='약관 동의', null=True)
+    join_at = models.DateTimeField(verbose_name='가입')
 
 POS_CHOICES = [
-    ('NOUN','명사'),
-    ('VERB','동사'),
-    ('ADJECTIVE','형용사'),
-    ('ADVERB','부사'),
-    ('PRONOUN','대명사'),
-    ('INTERJECTION','감탄사'),
-    ('DETERMINER','관형사'),
-    ('SPECIAL:FORBIDDEN','특수:금지어'),
-    ('SPECIAL:DERIVED','특수:파생형'),
+    ('명사','명사'),
+    ('동사','동사'),
+    ('형용사','형용사'),
+    ('부사','부사'),
+    ('대명사','대명사'),
+    ('감탄사','감탄사'),
+    ('관형사','관형사'),
+    ('특수:금지어','특수:금지어'),
+    ('특수:파생형','특수:파생형'),
 ]
 
 class Word(models.Model):
@@ -100,10 +79,10 @@ class Proposal(Word):
     editor = models.ForeignKey(User)
     action = models.CharField(verbose_name='동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
     rationale = models.CharField(verbose_name='제안 이유', max_length=1000, blank=True)
-    old_entry = models.ForeignKey(Entry, related_name='+', null=True)
+    old_entry = models.ForeignKey(Entry, related_name='removing_proposal', null=True)
     # ## status
     status = models.CharField(max_length=1000, choices=PROPOSAL_STATUS_CHOICES)
-    new_entry = models.ForeignKey(Entry, related_name='proposal', null=True)
+    new_entry = models.ForeignKey(Entry, related_name='making_proposal', null=True)
     status_date = models.DateTimeField()
     class Meta:
     #    ordering = ['-date', 'status', 'action']

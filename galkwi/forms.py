@@ -9,6 +9,9 @@ from django.utils.translation import ugettext_lazy as _
 class UserRegistrationForm(forms.Form):
     agree = forms.BooleanField(label='위 사항에 동의합니다', required=True)
 
+    def signup(self, request, user):
+        user.save()
+
 class EntrySearchForm(forms.Form):
     word = forms.CharField(label='단어')
 

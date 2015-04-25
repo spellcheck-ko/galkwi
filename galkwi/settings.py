@@ -154,6 +154,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATETIME_FORMAT = 'Y년 N j일, H:M:S'
+SHORT_DATETIME_FORMAT = 'Y/N/j H'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -163,8 +166,18 @@ STATIC_URL = '/static/'
 SITE_ID = 1
 
 #
-# allauth configuration
+# auth configuration
 #
+
+#AUTH_USER_MODEL = 'galkwi.models.UserProfile'
+
+#ACCOUNT_USER_MODEL_USERNAME_FIELD = 'user'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+#ACCOUNT_SIGNUP_FORM_CLASS = 'galkwi.forms.UserRegistrationForm'
 
 AUTHENTICATION_BACKENDS = {
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -173,10 +186,6 @@ AUTHENTICATION_BACKENDS = {
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 }
-
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-
-ACCOUNT_EMAIL_REQUIRED = True
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 

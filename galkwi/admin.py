@@ -3,6 +3,9 @@ from galkwi.models import *
 
 WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment']
 
+class UserProfileAdmin(admin.ModelAdmin):
+    pass
+
 class EntryAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,		{'fields': WORD_FIELDS}),
@@ -24,6 +27,7 @@ class ProposalAdmin(admin.ModelAdmin):
     list_filter = ['date']
     pass
 
+admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Entry, EntryAdmin)
 admin.site.register(Proposal, ProposalAdmin)
 admin.site.register(Vote)
