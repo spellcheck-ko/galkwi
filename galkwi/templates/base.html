@@ -12,8 +12,6 @@
 {% if user.is_authenticated %}
 {% if perms.galkwi.can_propose %}
 <a href="{% url 'profile' %}">{{ user.username }}님</a>
-{% else %}
-<a href="{% url 'register' %}">참여하기</a>
 {% endif %}
 <a href="{% url 'account_logout' %}">로그아웃</a>
 {% else %}

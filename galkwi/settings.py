@@ -169,7 +169,7 @@ SITE_ID = 1
 # auth configuration
 #
 
-#AUTH_USER_MODEL = 'galkwi.models.UserProfile'
+AUTH_USER_MODEL = 'galkwi.UserProfile'
 
 #ACCOUNT_USER_MODEL_USERNAME_FIELD = 'user'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -177,7 +177,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 
-#ACCOUNT_SIGNUP_FORM_CLASS = 'galkwi.forms.UserRegistrationForm'
+ACCOUNT_SIGNUP_FORM_CLASS = 'galkwi.forms.UserRegistrationForm'
 
 AUTHENTICATION_BACKENDS = {
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -188,4 +188,4 @@ AUTHENTICATION_BACKENDS = {
 }
 
 SOCIALACCOUNT_QUERY_EMAIL = True
-
+SOCIALACCOUNT_AUTO_SIGNUP = False

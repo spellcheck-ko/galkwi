@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.db.models import permalink, signals
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.utils import timezone
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User)
+class UserProfile(AbstractUser):
     tos_rev = models.DateTimeField(verbose_name='약관 동의', null=True)
-    join_at = models.DateTimeField(verbose_name='가입')
+    join_at = models.DateTimeField(verbose_name='가입', null=True)
+    REQUIRED_FIELDS = ['email']
 
 POS_CHOICES = [
     ('명사','명사'),
@@ -32,14 +32,13 @@ class Word(models.Model):
     comment = models.CharField(verbose_name='부가 설명', max_length=1000, blank=True)
     class Meta:
         abstract = True
-        
 
 # word entry in dictionary
 class Entry(Word):
     ## edit
     date = models.DateTimeField()
     #editors = models.ListProperty(models.Key)
-    editor = models.ForeignKey(User)
+    editor = models.ForeignKey(UserProfile)
     ## status
     valid = models.BooleanField(default=True)
     overrides = models.ForeignKey('self')
@@ -76,7 +75,7 @@ PROPOSAL_STATUS_CHOICES = [
 class Proposal(Word):
     # ## edit
     date = models.DateTimeField(verbose_name='제안 시각')
-    editor = models.ForeignKey(User)
+    editor = models.ForeignKey(UserProfile)
     action = models.CharField(verbose_name='동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
     rationale = models.CharField(verbose_name='제안 이유', max_length=1000, blank=True)
     old_entry = models.ForeignKey(Entry, related_name='removing_proposal', null=True)
@@ -169,7 +168,7 @@ VOTE_CHOICES = [
 
 class Vote(models.Model):
     date = models.DateTimeField()
-    reviewer = models.ForeignKey(User)
+    reviewer = models.ForeignKey(UserProfile)
     proposal = models.ForeignKey(Proposal)
     vote = models.CharField(verbose_name='찬반', max_length=1000, choices=VOTE_CHOICES)
     reason = models.CharField(verbose_name='이유', max_length=1000, blank=True)
