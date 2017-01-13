@@ -3,6 +3,7 @@
 from django.utils.deprecation import MiddlewareMixin
 import social_django.middleware
 
+
 class SocialAuthExceptionMiddlewareMixin(
         social_django.middleware.SocialAuthExceptionMiddleware,
         MiddlewareMixin):

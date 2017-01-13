@@ -3,8 +3,10 @@ from galkwiapp.models import *
 
 WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment']
 
+
 class UserAdmin(admin.ModelAdmin):
     pass
+
 
 class EntryAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -16,10 +18,10 @@ class EntryAdmin(admin.ModelAdmin):
     search_fields = ['word']
     pass
 
+
 class ProposalAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,		{'fields': ['action', 'editor', 'date', 'rationale',
-                                    'old_entry']}),
+        (None,		{'fields': ['action', 'editor', 'date', 'rationale', 'old_entry']}),
         ('Word Data',	{'fields': WORD_FIELDS, 'classes': ['collapse']}),
         ('Status',	{'fields': ['status', 'new_entry', 'status_date']}),
     ]

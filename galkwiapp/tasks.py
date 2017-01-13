@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from django.http import HttpResponse
+from datetime import datetime
+from galkwiapp.models import *
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
+from xml.sax.saxutils import escape as xml_escape
+
+
 REQUIRED_YES = 1
 REQUIRED_NO = 1
 EXPIRE_DAYS = 3000
 MIN_DAYS = 1
 
-from django.http import HttpResponse
-from datetime import datetime
-#from google.appengine.ext import db
-#from google.appengine.api.datastore import Query
-from galkwiapp.models import *
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import permission_required
-from xml.sax.saxutils import escape as xml_escape
 
 def count(request):
     proposals = Proposal.all().filter('status =', 'VOTING').order('date').fetch(999)
@@ -41,6 +41,7 @@ def count(request):
 count = permission_required('galkwi.can_vote')(count)
 
 EXPORT_CHUNK_SIZE = 100
+
 
 def export(request):
     start = request.GET.get('start')

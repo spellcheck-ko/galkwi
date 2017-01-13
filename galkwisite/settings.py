@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'social_django.middleware.SocialAuthExceptionMiddleware',
+    # 'social_django.middleware.SocialAuthExceptionMiddleware',
     'galkwisite.middleware.SocialAuthExceptionMiddlewareMixin',
 ]
 
@@ -58,7 +58,7 @@ ROOT_URLCONF = 'galkwisite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ os.path.join(BASE_DIR, 'galkwiapp', 'templates') ],
+        'DIRS': [os.path.join(BASE_DIR, 'galkwiapp', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,11 +74,11 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    #'social_core.backends.facebook.FacebookOAuth2',
-    #'social_core.backends.github.GithubOAuth2',
+    # 'social_core.backends.facebook.FacebookOAuth2',
+    # 'social_core.backends.github.GithubOAuth2',
     'social_core.backends.google.GoogleOAuth2',
-    #'social_core.backends.open_id.OpenIdAuth',
-    #'social_core.backends.twitter.TwitterOAuth',
+    # 'social_core.backends.open_id.OpenIdAuth',
+    # 'social_core.backends.twitter.TwitterOAuth',
 )
 
 

@@ -10,9 +10,11 @@ from django.utils import timezone
 from galkwiapp.models import *
 from galkwiapp.forms import *
 
+
 # Create your views here.
 def home(request):
         return render(request, 'home.html', {})
+
 
 def register(request):
     context = RequestContext(request)
@@ -28,13 +30,15 @@ def register(request):
                 return render(request, 'registration/registration_complete.html')
     else:
         form = UserRegistrationForm()
-    return render(request, 'registration/registration_form.html', { 'form': form })
+    return render(request, 'registration/registration_form.html', {'form': form})
+
 
 def profile(request):
     context = RequestContext(request)
     return render(request, 'registration/profile.html')
 
 ENTRIES_PER_PAGE = 25
+
 
 def entry_index(request):
     context = RequestContext(request)
@@ -43,7 +47,7 @@ def entry_index(request):
         if form.is_valid():
             word = form.cleaned_data['word']
             context['word'] = word
-            query = Entry.objects.filter(valid =True).filter(word=word)
+            query = Entry.objects.filter(valid=True).filter(word=word)
             query.order('word')
             entries = query.fetch(1000)
             paginator = Paginator(query, ENTRIES_PER_PAGE)
@@ -56,21 +60,23 @@ def entry_index(request):
             form = EntrySearchForm()
     else:
         form = EntrySearchForm()
-    return render(request, 'galkwiapp/entry_index.html', { 'form': form })
+    return render(request, 'galkwiapp/entry_index.html', {'form': form})
+
 
 def entry_detail(request, entry_id):
     context = RequestContext(request)
     entry = Entry.objects.get(id=entry_id)
-    #entry = get_object_or_404(Entry, pk=entry_id)
+    # entry = get_object_or_404(Entry, pk=entry_id)
     context['entry'] = entry
     context['proposals_voting'] = Proposal.objects.filter(old_entry=entry).filter(status='VOTING')
     context['proposals_new'] = Proposal.objects.filter(new_entry=entry)
     context['proposals_prev'] = Proposal.objects.filter(old_entry=entry).filter(status!='VOTING')
-                                                        
+
     return render(request, 'galkwiapp/entry_detail.html')
 
 PROPOSALS_PER_PAGE = 25
 PROPOSALS_PAGE_RANGE = 3
+
 
 def proposal_index(request):
     context = RequestContext(request)
@@ -86,6 +92,7 @@ def proposal_index(request):
     except InvalidPage:
         raise Http404
     return render(request, 'galkwiapp/proposal_index.html', data)
+
 
 @permission_required('galkwi.can_propose')
 def proposal_add(request):
@@ -107,13 +114,14 @@ def proposal_add(request):
                 return HttpResponseRedirect(instance.get_absolute_url())
     else:
         form = ProposalEditAddForm()
-    return render(request, 'galkwiapp/proposal_add.html', { 'form': form })
+    return render(request, 'galkwiapp/proposal_add.html', {'form': form})
+
 
 @permission_required('galkwi.can_propose')
 def proposal_remove(request, entry_id):
     context = RequestContext(request)
     entry = Entry.objects.get(id=entry_id)
-    #entry = get_object_or_404(Entry, pk=entry_id)
+    # entry = get_object_or_404(Entry, pk=entry_id)
     # ensure that this entry is valid
     if not entry.valid:
         return HttpResponseBadRequest(request)
@@ -135,13 +143,14 @@ def proposal_remove(request, entry_id):
     else:
         form = ProposalEditRemoveForm()
     context['entry'] = entry
-    return render(request, 'galkwiapp/proposal_remove.html', { 'form': form })
+    return render(request, 'galkwiapp/proposal_remove.html', {'form': form})
+
 
 @permission_required('galkwi.can_propose')
 def proposal_update(request, entry_id):
     context = RequestContext(request)
     entry = Entry.objects.get(id=entry_id)
-    #entry = get_object_or_404(Entry, pk=entry_id)
+    # entry = get_object_or_404(Entry, pk=entry_id)
     # ensure that this entry is valid
     if not entry.valid:
         return HttpResponseBadRequest(request)
@@ -171,12 +180,13 @@ def proposal_update(request, entry_id):
         proposal.comment = entry.comment
         form = ProposalEditUpdateForm(instance=proposal)
     context['entry'] = entry
-    return render(request, 'galkwiapp/proposal_update.html', { 'form': form })
+    return render(request, 'galkwiapp/proposal_update.html', {'form': form})
+
 
 def proposal_detail(request, proposal_id):
     context = RequestContext(request)
     proposal = Proposal.objects.get(id=int(proposal_id))
-    #proposal = get_object_or_404(Proposal, pk=proposal_id)
+    # proposal = get_object_or_404(Proposal, pk=proposal_id)
     data = {}
     data['proposal'] = proposal
     try:
@@ -204,6 +214,7 @@ def proposal_detail(request, proposal_id):
         data['cancel_form'] = ProposalCancelForm()
     return render(request, 'galkwiapp/proposal_detail.html', data)
 
+
 @permission_required('galkwi.can_vote')
 def proposal_vote_one(request):
     context = RequestContext(request)
@@ -214,11 +225,12 @@ def proposal_vote_one(request):
             return HttpResponseRedirect(proposal.get_absolute_url())
     return render(request, 'galkwiapp/proposal_vote_end.html')
 
+
 @permission_required('galkwi.can_vote')
 def proposal_vote(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
-        #proposal = get_object_or_404(Proposal, pk=proposal_id)
+        # proposal = get_object_or_404(Proposal, pk=proposal_id)
         proposal = Proposal.objects.get(id=proposal_id)
         if proposal.status != 'VOTING':
             return HttpResponseBadRequest(request)
@@ -249,12 +261,13 @@ def proposal_vote(request, proposal_id):
     else:
         return HttpResponseBadRequest(request)
 
+
 @permission_required('galkwi.can_propose')
 def proposal_cancel(request, proposal_id):
     if request.method == 'POST':
         context = RequestContext(request)
         proposal = Proposal.objects.get(id=proposal_id)
-        #proposal = get_object_or_404(Proposal, pk=proposal_id)
+        # proposal = get_object_or_404(Proposal, pk=proposal_id)
         # check if it's my proposal
         if proposal.editor != request.user:
             return HttpResponseBadRequest(request)
@@ -269,11 +282,13 @@ def proposal_cancel(request, proposal_id):
     else:
         return HttpResponseBadRequest(request)
 
+
 @permission_required('galkwi.can_vote')
 def proposal_vote_no(request, proposal_id):
     context = RequestContext(request)
     proposal = get_object_or_404(Proposal, pk=proposal_id)
     return HttpResponseRedirect(proposal.get_absolute_url())
+
 
 def proposal_recentchanges(request):
     context = RequestContext(request)
@@ -286,6 +301,7 @@ def proposal_recentchanges(request):
     except InvalidPage:
         raise Http404
     return render(request, 'galkwiapp/proposal_recentchanges.html', data)
+
 
 def stat(request):
     context = RequestContext(request)
