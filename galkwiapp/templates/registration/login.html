@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<p>
+<a href="{% url 'auth:logout' %}">로그아웃</a>
+{% else %}
+<p>
+<a href="{% url 'social:begin' 'google-oauth2' %}">구글 로그인</a>
+<p>
+<a href="/admin/login">관리 로그인</a>
+{% endif %}
+
+{% endblock %}

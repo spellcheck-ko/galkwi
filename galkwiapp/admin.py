@@ -1,9 +1,9 @@
 from django.contrib import admin
-from galkwi.models import *
+from galkwiapp.models import *
 
 WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment']
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     pass
 
 class EntryAdmin(admin.ModelAdmin):
@@ -27,7 +27,7 @@ class ProposalAdmin(admin.ModelAdmin):
     list_filter = ['date']
     pass
 
-admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(User, UserAdmin)
 admin.site.register(Entry, EntryAdmin)
 admin.site.register(Proposal, ProposalAdmin)
 admin.site.register(Vote)

@@ -1,29 +1,32 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <title>{% block title %}갈퀴{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{% url 'css' path='base.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 {% block style %}{% endblock %}{% block script %}{% endblock %}
 </head>
 <body>
 <div id="header">
 <div id="usernav">
 {% if user.is_authenticated %}
-{% if perms.galkwi.can_propose %}
 <a href="{% url 'profile' %}">{{ user.username }}님</a>
+{% if perms.galkwi.can_propose %}
 {% endif %}
-<a href="{% url 'account_logout' %}">로그아웃</a>
+<a href="{% url 'auth:logout' %}">로그아웃</a>
 {% else %}
-<a href="{% url 'account_login' %}">로그인</a>
+<a href="{% url 'auth:login' %}">로그인</a>
 {% endif %}
 </div>
 <div id="sitename"><h1>갈퀴</h1></div>
 <div id="navbar">
+{% comment %}
 <a href="{% url 'home' %}">홈</a>
 <a href="{% url 'entry_index' %}">검색</a>
 <a href="{% url 'proposal_index' %}">제안</a>
 <a href="{% url 'stat' %}">통계</a>
+{% endcomment %}
 </div>
 </div>
 {% block subnavbar %}{% endblock %}{% block content %}{% endblock %}
