@@ -19,7 +19,6 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf.urls.static import static
 from galkwiapp import views
-from galkwiapp import tasks
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
@@ -46,25 +45,10 @@ urlpatterns = [
     url(r'^proposal/recentchanges/$', views.proposal_recentchanges,
         name='proposal_recentchanges'),
 
-    url(r'^stat/$', views.stat,
-        name='stat'),
+    url(r'^stat/$', views.stat, name='stat'),
 
     url(r'^accounts/profile/$', views.profile, name='profile'),
     url(r'^account/register/$', views.register, name='register'),
-
-    url(r'^tasks/count/$', tasks.count),
-    url(r'^tasks/export/$', tasks.export),
-
-    # # static files
-    # url(r'^css/(?P<path>.*)$', 'django.views.static.serve',
-    #     {'document_root': ROOT_DIR + '/static/css'}, name='css'),
-    # url(r'^img/(?P<path>.*)$', 'django.views.static.serve',
-    #     {'document_root': ROOT_DIR + '/static/img'}, name='img'),
-    # url(r'^js/(?P<path>.*)$', 'django.views.static.serve',
-    #     {'document_root': ROOT_DIR + '/static/js'}, name='js'),
-    # url(r'^(?P<path>robots\.txt)$', 'django.views.static.serve',
-    #     {'document_root': ROOT_DIR + '/static'}),
-
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
+from django.utils import timezone
 
 
 class User(auth_models.AbstractUser):
@@ -38,17 +39,19 @@ class Word(models.Model):
 class Entry(Word):
     # edit
     date = models.DateTimeField()
-    # editors = models.ListProperty(models.Key)
-    editor = models.ForeignKey(User)
+    editor = models.ForeignKey(User, related_name='editor')
+    editors = models.ManyToManyField(User, related_name='editors')
+
     # status
     valid = models.BooleanField(default=True)
-    overrides = models.ForeignKey('self')
+    overrides = models.ForeignKey('self', null=True)
 
-    # class Meta:
+    class Meta:
+        verbose_name_plural = 'Entries'
     #     ordering = ['word', 'pos', 'valid']
 
     def __str__(self):
-        name = '%d: %s (%s)' % (self.id, self.word, self.pos)
+        name = '%s (%s)' % (self.word, self.pos)
         if not self.valid:
             name += ' INVALID'
         return name
@@ -139,9 +142,10 @@ class Proposal(Word):
             entry.orig = self.orig
             entry.comment = self.comment
             entry.date = self.date
-            entry.editors = [self.editor.key()]
             entry.editor = self.editor
+            entry.valid = True
             entry.save()
+            entry.editors.add(entry.editor)
             self.new_entry = entry
             self.status = 'APPROVED'
             self.status_date = timezone.now()
@@ -164,11 +168,11 @@ class Proposal(Word):
             entry.comment = self.comment
             entry.date = self.date
             entry.editor = self.editor
-            entry.editors = self.old_entry.editors
-            if not self.editor.key() in entry.editors:
-                entry.editors.append(self.editor.key())
             entry.overrides = self.old_entry
             entry.save()
+            entry.editors.add(*self.old_entry.editors.all())
+            if self.editor not in entry.editors.all():
+                entry.editors.add(self.editor)
             self.new_entry = entry
             entry = self.old_entry
             entry.valid = False
