@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="suggestion">
+<h3>처리된 단어</h3>
+
+<p>전체 {{ page.paginator.count }}개</p>
+
+<table>
+{% for rev in page.object_list %}
+<tr>
+  <td><a href="{{ rev.get_absolute_url }}">{{ rev.status }}</a></td>
+  <td>{{ rev.action_name }}</td>
+  <td>{{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</td>
+{% if rev.action_is_remove %}
+  <td>{{ rev.parent.word }}</td>
+  <td>{{ rev.parent.pos }}</td>
+  <td>{% if rev.parent.props %}{{ rev.parent.props }}{% endif %}</td>
+  <td>{% if rev.parent.comment %}{{ rev.parent.comment|truncatewords:4 }}{% endif %}</td>
+{% else %}
+{% ifequal rev.status "APPROVED" %}
+  <td><a href="{{ rev.entry.get_absolute_url }}">{{ rev.word }}</a></td>
+{% else %}
+  <td>{{ rev.word.word }}</td>
+{% endifequal %}
+  <td>{{ rev.word.pos }}</td>
+  <td>{% if rev.word.props %}{{ rev.word.props }}{% endif %}</td>
+  <td>{{ rev.user.username }}</td>
+  <td>{% if rev.comment %}{{ rev.comment|truncatewords:4 }}{% endif %}</td>
+{% endif %}
+  <td>{% if rev.review_comment %}{{ rev.review_comment|truncatewords:4 }}{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+<div class="paginator">
+{% if page.has_previous %}
+<a href="?page={{ page.previous_page_number }}">이전</a>
+{% endif %}
+{% if page.has_next %}
+<a href="?page={{ page.next_page_number }}">다음</a>
+{% endif %}
+</div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="suggestion">
+<a href="{% url 'suggestion_add' %}">단어 추가 제안하기</a>
+<a href="{% url 'suggestion_recentchanges' %}">처리된 제안</a>
+
+<h3>제안 중인 단어</h3>
+
+<p>전체 {{ page.paginator.count }}개</p>
+
+<table>
+{% for suggestion in page.object_list %}
+<tr>
+  <td><a href="{{ suggestion.get_absolute_url }}">{{ suggestion.action_name }}</a></td>
+  <td>{{ suggestion.timestamp|date }} {{ suggestion.timestamp|time }}</td>
+{% if suggestion.action_is_remove %}
+  <td>{{ suggestion.parent.word.word }}</td>
+  <td>{{ suggestion.parent.word.pos }}</td>
+  <td>{% if suggestion.parent.word.props %}{{ suggestion.parent.word.props }}{% endif %}</td>
+  <td>{{ suggestion.user.username }}</td>
+  <td>{% if suggestion.comment %}{{ suggestion.comment|truncatewords:4 }}{% endif %}</td>
+{% else %}
+  <td>{{ suggestion.word.word }}</td>
+  <td>{{ suggestion.word.pos }}</td>
+  <td>{% if suggestion.word.props %}{{ suggestion.word.props }}{% endif %}</td>
+  <td>{{ suggestion.user.username }}</td>
+  <td>{% if suggestion.comment %}{{ suggestion.comment|truncatewords:4 }}{% endif %}</td>
+{% endif %}
+  <td>{% if suggestion.rationale %}{{ suggestion.rationale|truncatewords:4 }}{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+<div class="paginator">
+{% if page.has_previous %}
+<a href="?page={{ page.previous_page_number }}">이전</a>
+{% endif %}
+{% if page.has_next %}
+<a href="?page={{ page.next_page_number }}">다음</a>
+{% endif %}
+</div>
+
+</div>
+{% endblock %}

@@ -21,6 +21,7 @@ POS_CHOICES = [
 ]
 
 
+# word entry in dictionary
 class Word(models.Model):
     # word data
     word = models.CharField(verbose_name='단어', max_length=100)
@@ -29,50 +30,40 @@ class Word(models.Model):
     stem = models.CharField(verbose_name='어근', max_length=100, blank=True)
     etym = models.CharField(verbose_name='어원', max_length=100, blank=True)
     orig = models.CharField(verbose_name='본딧말', max_length=100, blank=True)
-    comment = models.CharField(verbose_name='부가 설명', max_length=1000, blank=True)
+    description = models.CharField(verbose_name='부가 설명', max_length=1000, blank=True)
 
-    class Meta:
-        abstract = True
+    def __str__(self):
+        name = '%s (%s)' % (self.word, self.pos)
+        return name
 
 
-# word entry in dictionary
-class Entry(Word):
-    # edit
-    date = models.DateTimeField()
-    editor = models.ForeignKey(User, related_name='editor')
-    editors = models.ManyToManyField(User, related_name='editors')
-
-    # status
-    valid = models.BooleanField(default=True)
-    overrides = models.ForeignKey('self', null=True)
+class Entry(models.Model):
+    title = models.CharField(verbose_name='제목', max_length=100)
+    latest = models.ForeignKey('Revision', related_name='revision_latest', null=True, blank=True)
+    # TODO: discuss
 
     class Meta:
         verbose_name_plural = 'Entries'
     #     ordering = ['word', 'pos', 'valid']
 
     def __str__(self):
-        name = '%s (%s)' % (self.word, self.pos)
-        if not self.valid:
-            name += ' INVALID'
+        name = '%s' % (self.title)
         return name
 
     def get_absolute_url(self):
-        return '/entry/%d/' % self.id
+        return '/entry/%d/' % (self.id)
 
-    def save(self):
-        return super(Entry, self).save()
+    def update_rev(self, rev):
+        self.latest = rev
+        if rev.deleted:
+            word = rev.parent.word
+            self.title = 'OBSOLETE:%s(%s)' % (word.word, word.pos)
+        else:
+            word = rev.word
+            self.title = '%s(%s)' % (word.word, word.pos)
 
-    # @permalink
-    # def get_absolute_url(self):
-    #     return ('galkwi.views.entry_detail', (), {'entry_id': self.id})
 
-PROPOSAL_ACTION_CHOCIES = [
-    ('ADD', '추가'),
-    ('REMOVE', '제거'),
-    ('UPDATE', '변경'),
-]
-
-PROPOSAL_STATUS_CHOICES = [
+REVISION_STATUS_CHOICES = [
     ('DRAFT', '편집 중'),
     ('VOTING', '투표 중'),
     ('CANCELED', '취소'),
@@ -81,132 +72,86 @@ PROPOSAL_STATUS_CHOICES = [
     ('EXPIRED', '만료'),
 ]
 
+class Revision(models.Model):
+    status = models.CharField(max_length=10, choices=REVISION_STATUS_CHOICES)
+    entry = models.ForeignKey(Entry, null=True)
+    parent = models.ForeignKey('self', null=True, blank=True)
+    # content or deleted
+    word = models.ForeignKey(Word, null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
-class Proposal(Word):
-    # ## edit
-    date = models.DateTimeField(verbose_name='제안 시각')
-    editor = models.ForeignKey(User)
-    action = models.CharField(verbose_name='동작', max_length=100, choices=PROPOSAL_ACTION_CHOCIES)
-    rationale = models.CharField(verbose_name='제안 이유', max_length=1000, blank=True)
-    old_entry = models.ForeignKey(Entry, related_name='removing_proposal', null=True)
-    # ## status
-    status = models.CharField(max_length=1000, choices=PROPOSAL_STATUS_CHOICES)
-    new_entry = models.ForeignKey(Entry, related_name='making_proposal', null=True)
-    status_date = models.DateTimeField()
+    comment = models.CharField(verbose_name='설명', max_length=1000, blank=True)
+    user = models.ForeignKey(User)
+    # user_text = models.CharField(max_length=100, blank=True)
+    timestamp = models.DateTimeField(verbose_name='제안 시각')
+
+    reviewer = models.ForeignKey(User, related_name='reviewer', null=True, blank=True)
+    review_comment = models.CharField(verbose_name='리뷰 설명', max_length=1000, blank=True)
+    review_timestamp = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        # ordering = ['-date', 'status', 'action']
+        ordering = ['-timestamp', 'status']
         permissions = [
-            ("can_propose", "Can propose an action"),
+            ("can_suggest", "Can suggest a change"),
+            ("can_review", "Can review a suggestion"),
         ]
 
     def __str__(self):
-        return '%d: %s by %s' % (self.id, self.action, self.editor.username)
+        name = '%d:' % self.id
+        if self.action_is_add():
+            name += 'ADD:' + str(self.word)
+        elif self.action_is_remove():
+            name += 'REMOVE:' + str(self.parent.word)
+        elif self.action_is_update():
+            name += 'UPDATE:' + str(self.word)
+        return name
+
+    def action_name(self):
+        if self.parent == None:
+            return 'ADD'
+        else:
+            if self.deleted:
+                return 'REMOVE'
+            else:
+                return 'UPDATE'
+
+    def action_is_add(self):
+        return self.parent == None
+
+    def action_is_remove(self):
+        return self.parent != None and self.deleted
+
+    def action_is_update(self):
+        return self.parent != None and not self.deleted
 
     def get_absolute_url(self):
-        return '/proposal/%d/' % self.id
+        return '/suggestion/%d/' % (self.id)
 
-    # @permalink
-    # def get_absolute_url(self):
-    #     return ('galkwi.views.proposal_detail', (), {'proposal_id': self.id})
-
-    def save(self):
-        return super(Proposal, self).save()
-
-    def cancel(self):
-        self.status = 'CANCELED'
-        self.status_date = timezone.now()
-        self.save()
-
-    def reject(self):
-        self.status = 'REJECTED'
-        self.status_date = timezone.now()
-        self.save()
-
-    def expire(self):
-        self.status = 'EXPIRED'
-        self.status_date = timezone.now()
-        self.save()
-
-    def apply(self):
+    def approve(self, reviewer, comment):
         if self.status != 'VOTING':
             return
         # FIXME: need transaction
-        if self.action == 'ADD':
+        if self.action_is_add():
             entry = Entry()
-            entry.word = self.word
-            entry.pos = self.pos
-            entry.stem = self.stem
-            entry.props = self.props
-            entry.etym = self.etym
-            entry.orig = self.orig
-            entry.comment = self.comment
-            entry.date = self.date
-            entry.editor = self.editor
-            entry.valid = True
+            entry.update_rev(self)
             entry.save()
-            entry.editors.add(entry.editor)
-            self.new_entry = entry
-            self.status = 'APPROVED'
-            self.status_date = timezone.now()
-            self.save()
-        elif self.action == 'REMOVE':
-            entry = self.old_entry
-            entry.valid = False
+            self.entry = entry
+        else:
+            entry = self.entry
+            entry.update_rev(self)
             entry.save()
-            self.status = 'APPROVED'
-            self.status_date = timezone.now()
-            self.save()
-        elif self.action == 'UPDATE':
-            entry = Entry()
-            entry.word = self.word
-            entry.pos = self.pos
-            entry.stem = self.stem
-            entry.props = self.props
-            entry.etym = self.etym
-            entry.orig = self.orig
-            entry.comment = self.comment
-            entry.date = self.date
-            entry.editor = self.editor
-            entry.overrides = self.old_entry
-            entry.save()
-            entry.editors.add(*self.old_entry.editors.all())
-            if self.editor not in entry.editors.all():
-                entry.editors.add(self.editor)
-            self.new_entry = entry
-            entry = self.old_entry
-            entry.valid = False
-            entry.save()
-            self.status = 'APPROVED'
-            self.status_date = timezone.now()
-            self.save()
+        self.reviewer = reviewer
+        self.review_comment = comment
+        self.review_timestamp = timezone.now()
+        self.status = 'APPROVED'
+        self.save()
 
-VOTE_CHOICES = [
-    ('YES', '예'),
-    ('NO', '아니요'),
-]
+    def reject(self, reviewer, comment):
+        self.status = 'REJECTED'
+        self.reviewer = user
+        self.review_comment = comment
+        self.save()
 
-
-class Vote(models.Model):
-    date = models.DateTimeField()
-    reviewer = models.ForeignKey(User)
-    proposal = models.ForeignKey(Proposal)
-    vote = models.CharField(verbose_name='찬반', max_length=1000, choices=VOTE_CHOICES)
-    reason = models.CharField(verbose_name='이유', max_length=1000, blank=True)
-
-    def __str__(self):
-        return '%s on %s by %s' % (self.vote,
-                                   self.proposal.id, self.reviewer.username)
-
-    class Meta:
-        ordering = ['-date']
-        permissions = [
-            ("can_vote", "Can vote on proposal"),
-        ]
-
-    def get_absolute_url(self):
-        return '/vote/%d/' % self.id
-
-    # @permalink
-    # def get_absolute_url(self):
-    #     return ('galkwi.views.vote_detail', (), {'vote_id': self.id()})
+    def cancel(self):
+        self.status = 'CANCELED'
+        self.save()

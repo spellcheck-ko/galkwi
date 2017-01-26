@@ -3,59 +3,62 @@
 
 <h3>단어 정보</h3>
 
+{% if not entry.latest.deleted %}
 <table>
 <tr>
-  <td>{{ entry.word }}</td>
-  <td>{{ entry.pos }}</td>
-  <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
-  <td>{{ entry.editor.username }}</td>
-  <td>{{ entry.date|date }} {{ entry.date|time }}</td>
-  <td>{% if entry.comment %}{{ entry.comment }}{% endif %}</td>
+  <td>{{ entry.latest.word.word }}</td>
+  <td>{{ entry.latest.word.pos }}</td>
+  <td>{% if entry.latest.word.props %}{{ entry.latest.word.props }}{% endif %}</td>
+  <td>{{ entry.latest.user.username }}</td>
+  <td>{{ entry.latest.timestamp|date }} {{ entry.latest.timestamp|time }}</td>
+  <td>{% if entry.latest.word.description %}{{ entry.latest.word.description }}{% endif %}</td>
 </tr>
 </table>
+{% else %}
+<p>삭제된 단어입니다. 삭제 전에는 다음과 같습니다.</p>
+<table>
+<tr>
+  <td>{{ entry.latest.parent.word.word }}</td>
+  <td>{{ entry.latest.parent.word.pos }}</td>
+  <td>{% if entry.latest.parent.word.props %}{{ entry.latest.parent.word.props }}{% endif %}</td>
+  <td>{{ entry.latest.parent.user.username }}</td>
+  <td>{{ entry.latest.parent.timestamp|date }} {{ entry.latest.parent.timestamp|time }}</td>
+  <td>{% if entry.latest.parent.word.description %}{{ entry.latest.parent.word.description }}{% endif %}</td>
+</tr>
+</table>
+{% endif %}
 
 <p>
-{% if entry.valid %}
 <h3>제안</h3>
-{% if proposals_voting %}
+{% if suggestions %}
 <p>진행 중인 제안</p>
 <table>
-{% for proposal in proposals_voting %}
-<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
-<td>{{ proposal.editor.username }}</td>
+{% for rev in suggestions %}
+<td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
+<td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
+<td>{{ rev.user.username }}</td>
 {% endfor %}
 </table>
 {% else %}
 <p>진행 중인 제안이 없습니다</p>
-<a href="{% url 'proposal_remove' entry_id=entry.id %}">삭제 제안하기</a>
-<a href="{% url 'proposal_update' entry_id=entry.id %}">변경 제안하기</a>
-{% endif %}
-{% else %}
-<p>이 단어는 현재 유효한 단어가 아닙니다.</p>
+<a href="{% url 'suggestion_remove' entry_id=entry.id %}">삭제 제안하기</a>
+<a href="{% url 'suggestion_update' entry_id=entry.id %}">변경 제안하기</a>
 {% endif %}
 
-{% if proposals_prev %}
-<h3>이 단어를 변경/삭제하는 제안</h3>
-<table>
-{% for proposal in proposals_prev %}
-<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
-<td>{{ proposal.editor.username }}</td>
-<td>{{ proposal.status }}</td>
-{% endfor %}
-</table>
-{% endif %}
-
-{% if proposals_new %}
+{% comment %}
+{% if entry.suggestions_new %}
 <h3>이 단어를 만든 제안</h3>
 <table>
-{% for proposal in proposals_new %}
-<td><a href="{% url 'proposal' proposal_id=proposal.id %}">{{ proposal.action }}</a></td>
-<td>{{ proposal.date|date }} {{ proposal.date|time }}</td>
-<td>{{ proposal.editor.username }}</td>
-<td>{{ proposal.status }}</td>
+{% for suggestion in suggestions_new %}
+<td><a href="{% url 'suggestion' suggestion_id=suggestion.id %}">{{ suggestion.action_name }}</a></td>
+<td>{{ suggestion.timestamp|date }} {{ suggestion.timestamp|time }}</td>
+<td>{{ suggestion.user.username }}</td>
+<td>{{ suggestion.status }}</td>
 {% endfor %}
 </table>
 {% endif %}
+
+
+{% endcomment %}
+
 {% endblock %}

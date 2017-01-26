@@ -39,13 +39,18 @@ class EntrySearchForm(forms.Form):
     word = forms.CharField(label='단어')
 
 
-class ProposalVoteForm(forms.ModelForm):
-    class Meta:
-        model = Vote
-        fields = ['vote', 'reason']
+SUGGESTION_REVIEW_CHOICES = (
+    (0, '보류'),
+    (1, '허용'),
+    (2, '거절'),
+)
+
+class SuggestionReviewForm(forms.Form):
+    review = forms.ChoiceField(choices=SUGGESTION_REVIEW_CHOICES, widget=forms.RadioSelect())
+    comment = forms.CharField(label='이유')
 
 
-class ProposalCancelForm(forms.Form):
+class SuggestionCancelForm(forms.Form):
     pass
 
 error_messages = {
@@ -54,7 +59,7 @@ error_messages = {
 }
 
 
-class ProposalEditAddForm(forms.ModelForm):
+class SuggestionAddForm(forms.ModelForm):
     def clean_word(self):
         word = self.cleaned_data.get('word')
         if not word:
@@ -68,31 +73,19 @@ class ProposalEditAddForm(forms.ModelForm):
         return pos
 
     class Meta:
-        model = Proposal
-        exclude = ['action', 'date', 'editor', 'status', 'new_entry',
-                   'old_entry', 'status_date']
+        model = Word
+        exclude = []
+        # exclude = ['entry', 'action', 'status', 'user', 'reviewer' ]
 
 
-class ProposalEditRemoveForm(forms.ModelForm):
+class SuggestionRemoveForm(forms.ModelForm):
     class Meta:
-        model = Proposal
-        fields = ['rationale']
+        model = Revision
+        fields = ['review_comment']
 
 
-class ProposalEditUpdateForm(forms.ModelForm):
-    def clean_word(self):
-        word = self.cleaned_data.get('word')
-        if not word:
-            raise ValidationError(error_messages['required'])
-        return word
-
-    def clean_pos(self):
-        pos = self.cleaned_data.get('pos')
-        if not pos:
-            raise ValidationError(error_messages['required'])
-        return pos
-
+class SuggestionUpdateForm(forms.ModelForm):
+    comment = forms.CharField(label='설명')
     class Meta:
-        model = Proposal
-        exclude = ['action', 'date', 'editor', 'status', 'new_entry',
-                   'old_entry', 'status_date']
+        model = Word
+        exclude = []

@@ -6,8 +6,8 @@
   <li>이름: {{ user.first_name }}</li>
   <li>성: {{ user.last_name }}</li>
   <li>전자메일: {{ user.email }}</li>
-  {% if perms.galkwi.can_propose %}<li>제안 가능</li>{% endif %}
-  {% if perms.galkwi.can_vote %}<li>투표 가능</li>{% endif %}
+  {% if perms.galkwi.can_suggest %}<li>제안 가능</li>{% endif %}
+  {% if perms.galkwi.can_review %}<li>리뷰 가능</li>{% endif %}
 </li>
   </ul>
 </div>

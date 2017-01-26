@@ -7,7 +7,7 @@
 </form>
 </div>
 
-<a href="{% url 'proposal_add' %}">단어 추가 제안하기</a>
+<a href="{% url 'suggestion_add' %}">단어 추가 제안하기</a>
 
 {% if page %}
 <div class="search_result">
@@ -18,11 +18,11 @@
 <table>
 {% for entry in page.object_list %}
 <tr>
-  <td><a href="{{ entry.get_absolute_url }}">{{ entry.word }}</a></td>
-  <td>{{ entry.pos }}</td>
-  <td>{% if entry.props %}{{ entry.props }}{% endif %}</td>
-  <td>{{ entry.editor.username }}</td>
-  <td>{{ entry.date|date }} {{ entry.date|time }}</td>
+  <td><a href="{{ entry.get_absolute_url }}">{{ entry }}</a></td>
+  <td>{{ entry.latest.word.pos }}</td>
+  <td>{% if entry.latest.word.props %}{{ entry.latest.word.props }}{% endif %}</td>
+  <td>{{ entry.latest.word.user.username }}</td>
+  <td>{{ entry.latest.timestamp|date }} {{ entry.latest.timestamp|time }}</td>
 </tr>
 {% endfor %}
 </table>
