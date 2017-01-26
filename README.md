@@ -7,8 +7,16 @@
 필요한 패키지 (python3 venv) 설치
 ----------------------------------
 
+Debian, Ubuntu, Mint에서
+
 ```
 $ sudo apt install python3-venv
+```
+
+Fedora, CentOS에서
+
+```
+$ yum install python3-virtualenv
 ```
 
 환경 설정
@@ -21,7 +29,7 @@ $ ./setup.sh
 실행
 ----
 
-social login API 설정은 galkwisite/local_settings.py 파일에 추가
+python-social-auth 설정은 galkwisite/local_settings.py 파일에 추가
 
 Google OAuth2: http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
 
