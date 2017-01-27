@@ -47,7 +47,7 @@ SUGGESTION_REVIEW_CHOICES = (
 
 class SuggestionReviewForm(forms.Form):
     review = forms.ChoiceField(choices=SUGGESTION_REVIEW_CHOICES, widget=forms.RadioSelect())
-    comment = forms.CharField(label='이유')
+    comment = forms.CharField(label='리뷰 이유', required=False)
 
 
 class SuggestionCancelForm(forms.Form):
@@ -60,6 +60,8 @@ error_messages = {
 
 
 class SuggestionAddForm(forms.ModelForm):
+    comment = forms.CharField(label='제안 이유', required=False)
+
     def clean_word(self):
         word = self.cleaned_data.get('word')
         if not word:
@@ -85,7 +87,7 @@ class SuggestionRemoveForm(forms.ModelForm):
 
 
 class SuggestionUpdateForm(forms.ModelForm):
-    comment = forms.CharField(label='설명')
+    comment = forms.CharField(label='제안 이유', required=False)
     class Meta:
         model = Word
         exclude = []

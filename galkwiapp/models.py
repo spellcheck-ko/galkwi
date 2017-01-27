@@ -4,9 +4,8 @@ from django.utils import timezone
 
 
 class User(auth_models.AbstractUser):
-    tos_rev = models.DateTimeField(verbose_name='약관 동의', null=True)
+    tos_rev = models.DateTimeField(verbose_name='약관 동의', null=True, blank=True)
     REQUIRED_FIELDS = ['email']
-    pass
 
 POS_CHOICES = [
     ('명사', '명사'),
@@ -30,7 +29,7 @@ class Word(models.Model):
     stem = models.CharField(verbose_name='어근', max_length=100, blank=True)
     etym = models.CharField(verbose_name='어원', max_length=100, blank=True)
     orig = models.CharField(verbose_name='본딧말', max_length=100, blank=True)
-    description = models.CharField(verbose_name='부가 설명', max_length=1000, blank=True)
+    description = models.CharField(verbose_name='설명', max_length=1000, blank=True)
 
     def __str__(self):
         name = '%s (%s)' % (self.word, self.pos)
@@ -73,21 +72,21 @@ REVISION_STATUS_CHOICES = [
 ]
 
 class Revision(models.Model):
-    status = models.CharField(max_length=10, choices=REVISION_STATUS_CHOICES)
-    entry = models.ForeignKey(Entry, null=True)
-    parent = models.ForeignKey('self', null=True, blank=True)
+    status = models.CharField(verbose_name='상태', max_length=10, choices=REVISION_STATUS_CHOICES)
+    entry = models.ForeignKey(Entry, verbose_name='단어 항목', null=True)
+    parent = models.ForeignKey('self', verbose_name='이전 리비전', null=True, blank=True)
     # content or deleted
-    word = models.ForeignKey(Word, null=True, blank=True)
-    deleted = models.BooleanField(default=False)
+    word = models.ForeignKey(Word, verbose_name='단어 데이터', null=True, blank=True)
+    deleted = models.BooleanField(verbose_name='삭제', default=False)
 
     comment = models.CharField(verbose_name='설명', max_length=1000, blank=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, verbose_name='편집자')
     # user_text = models.CharField(max_length=100, blank=True)
     timestamp = models.DateTimeField(verbose_name='제안 시각')
 
-    reviewer = models.ForeignKey(User, related_name='reviewer', null=True, blank=True)
+    reviewer = models.ForeignKey(User, verbose_name='리뷰어', related_name='reviewer', null=True, blank=True)
     review_comment = models.CharField(verbose_name='리뷰 설명', max_length=1000, blank=True)
-    review_timestamp = models.DateTimeField(null=True, blank=True)
+    review_timestamp = models.DateTimeField(verbose_name='리뷰 시각', null=True, blank=True)
 
     class Meta:
         ordering = ['-timestamp', 'status']
