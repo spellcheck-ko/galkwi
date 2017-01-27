@@ -14,28 +14,32 @@ class Command(BaseCommand):
         self.do_export(open(filename, 'w'))
 
     def do_export(self, file):
-        entries = Entry.objects.filter(valid=True)
-        entries = entries.order_by('word')
-        file.write('<exported-data>\n')
+        entries = Entry.objects.filter(latest__deleted=False)
+        entries = entries.order_by('latest__word__word')
+        file.write('<galkwi-exported version="2.0">\n')
         for entry in entries:
-            if not entry.valid:
-                continue
+            rev = entry.latest
+            word = rev.word
             file.write('<Entry>\n')
-            file.write('<word>%s</word>\n' % entry.word)
-            file.write('<pos>%s</pos>\n' % entry.pos)
-            if entry.props:
-                file.write('<props>%s</props>\n' % xml_escape(entry.props))
-            if entry.stem:
-                file.write('<stem>%s</stem>\n' % entry.stem)
-            if entry.etym:
-                file.write('<etym>%s</etym>\n' % entry.etym)
-            if entry.comment:
-                file.write('<comment>%s</comment>\n' % xml_escape(entry.comment))
-            file.write('<editors>')
-            for editor in entry.editors.all():
-                file.write('<name>%s</name>' % editor.username)
-            file.write('</editors>\n')
-            file.write('<editor>%s</editor>\n' % entry.editor.username)
-            file.write('<date>%s</date>\n' % entry.date.strftime('%Y-%m-%d %H:%M:%S'))
+            file.write(' <word>%s</word>\n' % word.word)
+            file.write(' <pos>%s</pos>\n' % word.pos)
+            if word.props:
+                file.write(' <props>%s</props>\n' % xml_escape(word.props))
+            if word.stem:
+                file.write(' <stem>%s</stem>\n' % word.stem)
+            if word.etym:
+                file.write(' <etym>%s</etym>\n' % word.etym)
+            if word.description:
+                file.write(' <description>%s</description>\n' % xml_escape(word.description))
+            file.write(' <history>\n')
+            while rev:
+                file.write('  <revision>\n')
+                file.write('   <name>%s</name>\n' % rev.user.username)
+                file.write('   <datetime>%s</datetime>\n' % rev.timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+                if rev.comment:
+                    file.write('  <comment>%s</comment>\n' % rev.comment)
+                file.write('  </revision>\n')
+                rev = rev.parent
+            file.write(' </history>\n')
             file.write('</Entry>\n')
-        file.write('</exported-data>\n')
+        file.write('</galkwi-exported>\n')

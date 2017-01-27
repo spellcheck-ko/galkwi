@@ -1,15 +1,16 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.utils import timezone
 from datetime import datetime
-from galkwiapp.models import Entry, User
+from galkwiapp.models import *
 from xml import sax
 
-
-class Importer(sax.ContentHandler):
+class ImporterV1(sax.ContentHandler):
     def __init__(self):
         self.text = ''
         self.elements = []
         self.users = {}
+        self.count = 0
 
     def find_or_add_user(self, username):
         q = User.objects.filter(username=username)
@@ -26,36 +27,62 @@ class Importer(sax.ContentHandler):
         self.elements.append(name)
         if name == 'Entry':
             self.entry = Entry()
+            self.rev = Revision()
+            self.word = Word()
         elif name == 'editors':
             self.editors = []
         self.text = ''
 
     def endElement(self, name):
         if name == 'Entry':
+            self.word.save()
+            self.rev.word = self.word
+            self.rev.status = 'APPROVED'
+            self.rev.save()
+            self.entry.update_rev(self.rev)
             self.entry.save()
+
             for e in self.editors:
-                self.entry.editors.add(e)
+                if e != self.rev.user:
+                    # append fake history
+                    rev = Revision()
+                    rev.word = self.word # use the same word?
+                    rev.user = e
+                    rev.timestamp = self.rev.timestamp
+                    rev.parent = self.rev.parent
+                    rev.status = 'APPROVED'
+                    rev.entry = self.entry
+                    rev.save()
+                    self.rev.parent = rev
+
+            self.rev.entry = self.entry
+            self.rev.save()
+
+            self.count += 1
+            if (self.count % 10) == 0:
+                print('count: %d' % self.count)
+
         elif name == 'word':
-            self.entry.word = self.text
+            self.word.word = self.text
         elif name == 'pos':
-            self.entry.pos = self.text
+            self.word.pos = self.text
         elif name == 'props':
-            self.entry.props = self.text
+            self.word.props = self.text
         elif name == 'stem':
-            self.entry.stem = self.text
+            self.word.stem = self.text
         elif name == 'etym':
-            self.entry.etym = self.text
+            self.word.etym = self.text
         elif name == 'comment':
-            self.entry.comment = self.text
+            self.word.description = self.text
+        elif name == 'editor':
+            user = self.find_or_add_user(self.text)
+            self.rev.user = user
+        elif name == 'date':
+            d = datetime.strptime(self.text, '%Y-%m-%d %H:%M:%S')
+            self.rev.timestamp = datetime(d.year, d.month, d.day, d.hour, d.month, d.second, 0, timezone.utc)
         elif name == 'name' and self.elements[-2] == 'editors':
             user = self.find_or_add_user(self.text)
             self.editors.append(user)
-        elif name == 'editor':
-            user = self.find_or_add_user(self.text)
-            self.entry.editor = user
-        elif name == 'date':
-            d = datetime.strptime(self.text, '%Y-%m-%d %H:%M:%S')
-            self.entry.date = datetime(d.year, d.month, d.day, d.hour, d.month, d.second, 0, timezone.utc)
         self.elements.pop()
 
     def endDocument(self):
@@ -75,5 +102,13 @@ class Command(BaseCommand):
         filename = options['filename']
         self.do_import(filename)
 
+    @transaction.atomic
     def do_import(self, filename):
-        sax.parse(filename, Importer())
+        f = open(filename)
+        l = f.readline()
+        if l.startswith('<?xml'):
+            l = f.readline()
+        if l.startswith('<exported-data'):
+            sax.parse(filename, ImporterV1())
+        else:
+            print('not implemented: %s' % l)
