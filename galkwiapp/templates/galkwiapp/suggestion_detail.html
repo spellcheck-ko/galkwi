@@ -12,11 +12,11 @@
 {% if rev.action_is_add %}
 <table>
 <tr>
-{% ifequal rev.status "APPROVED" %}
+{% if rev.status_is_approved %}
   <td><a href="{% url 'entry' entry_id=rev.entry.id %}">{{ rev.word.word }}</a></td>
 {% else %}
   <td>{{ rev.word.word }}</td>
-{% endifequal %}
+{% endif %}
   <td>{{ rev.word.pos }}</td>
   <td>{% if rev.word.props %}{{ rev.word.props }}{% endif %}</td>
   <td>{% if rev.word.description %}{{ rev.word.description }}{% endif %}</td>
@@ -47,11 +47,11 @@
   <td>{% if rev.word.description %}{{ rev.word.description }}{% endif %}</td>
 </tr>
 <tr>
-  {% ifequal rev.status "APPROVED" %}
+  {% if rev.status_is_approved %}
   <td><a href="{% url 'entry' entry_id=rev.entry.id %}">{{ rev.word.word }}</a></td>
   {% else %}
   <td>{{ rev.word.word }}</td>
-  {% endifequal %}
+  {% endif %}
   <td>{{ rev.word.pos }}</td>
   <td>{% if rev.word.props %}{{ rev.word.props }}{% endif %}</td>
   <td>{% if rev.word.etym %}{{ rev.word.etym }}{% endif %}</td>
@@ -59,19 +59,21 @@
 </tr>
 </table>
 {% endif %}
-{% ifequal rev.status "VOTING" %}{% ifequal rev.user user %}
+{% if rev.status_is_voting %}
+{% ifequal rev.user user %}
 <form action="{% url 'suggestion_cancel' rev_id=rev.id %}" method="post">{% csrf_token %}
 {{ cancel_form }}
 <input type="submit" value="제안 취소" />
 </form>
-{% endifequal %}{% endifequal %}
-{% ifnotequal rev.status "VOTING" %}
+{% endifequal %}
+{% endif %}
+{% if not rev.status_is_voting %}
 <p>결과: {{ rev.status }}</p>
 <p>리뷰: {{ rev.reviewer.username }}</p>
 <p>리뷰 코멘트: {{ rev.review_comment }}</p>
 <p>리뷰 시각: {{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</p>
-{% endifnotequal %}
-{% ifequal rev.status "VOTING" %}{% if perms.galkwi.can_review %}
+{% endif %}
+{% if rev.status_is_voting %}{% if perms.galkwiapp.can_review %}
 <h3>리뷰</h3>
 <form action="{% url 'suggestion_review' rev_id=rev.id %}" method="POST">{% csrf_token %}
 <table>
@@ -80,6 +82,6 @@
 <input type="submit" name="_reviewone" value="리뷰 및 다음 제안으로" />
 <input type="submit" value="리뷰" />
 </form>
-{% endif %}{% endifequal %}
+{% endif %}{% endif %}
 </div>
 {% endblock %}

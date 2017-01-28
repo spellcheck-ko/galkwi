@@ -23,7 +23,7 @@ def register(request):
         if form.is_valid():
             agree = form.cleaned_data['agree']
             if agree:
-                ct = ContentType.objects.get_for_model(Suggestion)
+                ct = ContentType.objects.get_for_model(Revision)
                 p = Permission.objects.get(content_type=ct, codename='can_suggest')
                 request.user.user_permissions.add(p)
                 request.user.save()
@@ -72,11 +72,10 @@ def entry_index(request):
 
 
 def entry_detail(request, entry_id):
-    entry = Entry.objects.get(id=entry_id)
-    # entry = get_object_or_404(Entry, pk=entry_id)
+    entry = get_object_or_404(Entry, pk=entry_id)
     data = {}
     data['entry'] = entry
-    data['suggestions'] = Revision.objects.filter(entry=entry).filter(status='VOTING')
+    data['suggestions'] = Revision.objects.filter(entry=entry).filter(status=Revision.STATUS_VOTING)
     return render(request, 'galkwiapp/entry_detail.html', data)
 
 SUGGESTIONS_PER_PAGE = 25
@@ -84,7 +83,7 @@ SUGGESTIONS_PAGE_RANGE = 3
 
 
 def suggestion_index(request):
-    query = Revision.objects.filter(status='VOTING').order_by('-timestamp')
+    query = Revision.objects.filter(status=Revision.STATUS_VOTING).order_by('-timestamp')
     paginator = Paginator(query, SUGGESTIONS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
@@ -98,13 +97,14 @@ def suggestion_index(request):
     return render(request, 'galkwiapp/suggestion_index.html', data)
 
 
-@permission_required('galkwi.can_suggest')
+@permission_required('galkwiapp.can_suggest')
 def suggestion_add(request):
     data = {}
     if request.method == 'POST':
         form = SuggestionAddForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
+            # TODO: check duplicate
             word.save()
             rev = Revision()
             rev.word = word
@@ -112,7 +112,7 @@ def suggestion_add(request):
             rev.action = 'ADD'
             rev.timestamp = timezone.now()
             rev.user = request.user
-            rev.status = 'VOTING'
+            rev.status = Revision.STATUS_VOTING
             rev.save()
             if '_addanother' in request.POST:
                 data['submitted_rev'] = rev
@@ -124,16 +124,15 @@ def suggestion_add(request):
     return render(request, 'galkwiapp/suggestion_add.html', data)
 
 
-@permission_required('galkwi.can_suggest')
+@permission_required('galkwiapp.can_suggest')
 def suggestion_remove(request, entry_id):
     data = {}
-    entry = Entry.objects.get(id=entry_id)
-    # entry = get_object_or_404(Entry, pk=entry_id)
+    entry = get_object_or_404(Entry, pk=entry_id)
     # ensure that this entry is valid
     if entry.latest.deleted:
         return HttpResponseBadRequest(request)
     # ensure there is no other running suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status='VOTING')
+    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_VOTING)
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -142,7 +141,7 @@ def suggestion_remove(request, entry_id):
             rev = form.save(commit=False)
             rev.entry = entry
             rev.deleted = True
-            rev.status = 'VOTING'
+            rev.status = Revision.STATUS_VOTING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
@@ -154,14 +153,13 @@ def suggestion_remove(request, entry_id):
     return render(request, 'galkwiapp/suggestion_remove.html', data)
 
 
-@permission_required('galkwi.can_suggest')
+@permission_required('galkwiapp.can_suggest')
 def suggestion_update(request, entry_id):
     data = {}
-    entry = Entry.objects.get(id=entry_id)
-    # entry = get_object_or_404(Entry, pk=entry_id)
+    entry = get_object_or_404(Entry, pk=entry_id)
 
     # ensure there is no other suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status='VOTING')
+    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_VOTING)
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -173,7 +171,7 @@ def suggestion_update(request, entry_id):
             rev.entry = entry
             rev.word = word
             rev.deleted = False
-            rev.status = 'VOTING'
+            rev.status = Revision.STATUS_VOTING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
@@ -186,41 +184,39 @@ def suggestion_update(request, entry_id):
 
 
 def suggestion_detail(request, rev_id):
-    rev = Revision.objects.get(id=int(rev_id))
-    # suggestion = get_object_or_404(Suggestion, pk=suggestion_id)
+    rev = get_object_or_404(Revision, pk=rev_id)
     data = {}
     data['rev'] = rev
-    if rev.status == 'VOTING':
-        if request.user.has_perm('galkwi.can_review'):
+    if rev.status == Revision.STATUS_VOTING:
+        if request.user.has_perm('galkwiapp.can_review'):
             data['review_form'] = SuggestionReviewForm()
         if request.user == rev.user:
             data['cancel_form'] = SuggestionCancelForm()
     return render(request, 'galkwiapp/suggestion_detail.html', data)
 
 
-@permission_required('galkwi.can_review')
+@permission_required('galkwiapp.can_review')
 def suggestion_review_one(request):
-    revs = Revision.objects.filter(status='VOTING').order_by('timestamp')
+    revs = Revision.objects.filter(status=Revision.STATUS_VOTING).order_by('timestamp')
     for rev in revs:
         return HttpResponseRedirect(rev.get_absolute_url())
     return render(request, 'galkwiapp/suggestion_review_end.html')
 
 
-@permission_required('galkwi.can_review')
+@permission_required('galkwiapp.can_review')
 def suggestion_review(request, rev_id):
     if request.method == 'POST':
-        # suggestion = get_object_or_404(Suggestion, pk=suggestion_id)
-        rev = Revision.objects.get(id=rev_id)
-        if rev.status != 'VOTING':
+        rev = get_object_or_404(Revision, pk=rev_id)
+        if rev.status != Revision.STATUS_VOTING:
             return HttpResponseBadRequest(request)
         # retrieve previous vote if any
         form = SuggestionReviewForm(request.POST)
         if form.is_valid():
-            review = int(form.cleaned_data['review'])
+            review = form.cleaned_data['review']
             comment = form.cleaned_data['comment']
-            if review == 1:
+            if review == 'APPROVE':
                 rev.approve(request.user, comment)
-            elif review == 2:
+            elif review == 'REJECT':
                 rev.reject(request.user, comment)
             if '_reviewone' in request.POST:
                 return HttpResponseRedirect(reverse('suggestion_review_one'))
@@ -232,15 +228,14 @@ def suggestion_review(request, rev_id):
         return HttpResponseBadRequest(request)
 
 
-@permission_required('galkwi.can_suggest')
+@permission_required('galkwiapp.can_suggest')
 def suggestion_cancel(request, rev_id):
     if request.method == 'POST':
-        rev = Revision.objects.get(id=rev_id)
-        # suggestion = get_object_or_404(Suggestion, pk=suggestion_id)
+        rev = get_object_or_404(Revision, pk=rev_id)
         # check if it's my suggestion
         if rev.user != request.user:
             return HttpResponseBadRequest(request)
-        if rev.status != 'VOTING':
+        if rev.status != Revision.STATUS_VOTING:
             return HttpResponseBadRequest(request)
         form = SuggestionCancelForm(request.POST)
         if form.is_valid():

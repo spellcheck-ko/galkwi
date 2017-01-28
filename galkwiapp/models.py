@@ -32,7 +32,7 @@ class Word(models.Model):
     description = models.CharField(verbose_name='설명', max_length=1000, blank=True)
 
     def __str__(self):
-        name = '%s (%s)' % (self.word, self.pos)
+        name = '%s(%s)' % (self.word, self.pos)
         return name
 
 
@@ -60,20 +60,32 @@ class Entry(models.Model):
         else:
             word = rev.word
             self.title = '%s(%s)' % (word.word, word.pos)
+        if rev.parent:
+            old_rev = rev.parent
+            old_rev.status = Revision.STATUS_REPLACED
+            old_rev.save()
+        self.save()
 
-
-REVISION_STATUS_CHOICES = [
-    ('DRAFT', '편집 중'),
-    ('VOTING', '투표 중'),
-    ('CANCELED', '취소'),
-    ('APPROVED', '허용'),
-    ('REJECTED', '거절'),
-    ('EXPIRED', '만료'),
-]
 
 class Revision(models.Model):
-    status = models.CharField(verbose_name='상태', max_length=10, choices=REVISION_STATUS_CHOICES)
-    entry = models.ForeignKey(Entry, verbose_name='단어 항목', null=True)
+    STATUS_DRAFT = 0
+    STATUS_VOTING = 1
+    STATUS_CANCELED = 2
+    STATUS_APPROVED = 3
+    STATUS_REJECTED = 4
+    STATUS_REPLACED = 5
+
+    STATUS_CHOICES = (
+        (STATUS_DRAFT, '편집 중'),
+        (STATUS_VOTING, '투표 중'),
+        (STATUS_CANCELED, '취소'),
+        (STATUS_APPROVED, '허용'),
+        (STATUS_REJECTED, '거절'),
+        (STATUS_REPLACED, '대체됨'),
+    )
+
+    status = models.IntegerField(verbose_name='상태', choices=STATUS_CHOICES)
+    entry = models.ForeignKey(Entry, verbose_name='단어 항목', null=True, blank=True)
     parent = models.ForeignKey('self', verbose_name='이전 리비전', null=True, blank=True)
     # content or deleted
     word = models.ForeignKey(Word, verbose_name='단어 데이터', null=True, blank=True)
@@ -123,34 +135,40 @@ class Revision(models.Model):
     def action_is_update(self):
         return self.parent != None and not self.deleted
 
+    def status_name(self):
+        return Revision.STATUS_CHOICES[self.status][1]
+
+    def status_is_approved(self):
+        return self.status == Revision.STATUS_APPROVED
+
+    def status_is_voting(self):
+        return self.status == Revision.STATUS_VOTING
+
     def get_absolute_url(self):
         return '/suggestion/%d/' % (self.id)
 
     def approve(self, reviewer, comment):
-        if self.status != 'VOTING':
+        if self.status != Revision.STATUS_VOTING:
             return
-        # FIXME: need transaction
         if self.action_is_add():
             entry = Entry()
-            entry.update_rev(self)
             entry.save()
             self.entry = entry
         else:
             entry = self.entry
-            entry.update_rev(self)
-            entry.save()
+        entry.update_rev(self)
         self.reviewer = reviewer
         self.review_comment = comment
         self.review_timestamp = timezone.now()
-        self.status = 'APPROVED'
+        self.status = Revision.STATUS_APPROVED
         self.save()
 
     def reject(self, reviewer, comment):
-        self.status = 'REJECTED'
+        self.status = Revision.STATUS_REJECTED
         self.reviewer = user
         self.review_comment = comment
         self.save()
 
     def cancel(self):
-        self.status = 'CANCELED'
+        self.status = Revision.STATUS_CANCELED
         self.save()

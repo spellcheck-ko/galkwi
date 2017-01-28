@@ -8,7 +8,7 @@
 <table>
 {% for rev in page.object_list %}
 <tr>
-  <td><a href="{{ rev.get_absolute_url }}">{{ rev.status }}</a></td>
+  <td><a href="{{ rev.get_absolute_url }}">{{ rev.status_name }}</a></td>
   <td>{{ rev.action_name }}</td>
   <td>{{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</td>
 {% if rev.action_is_remove %}

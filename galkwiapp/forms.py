@@ -40,9 +40,9 @@ class EntrySearchForm(forms.Form):
 
 
 SUGGESTION_REVIEW_CHOICES = (
-    (0, '보류'),
-    (1, '허용'),
-    (2, '거절'),
+    ('HOLD', '보류'),
+    ('APPROVE', '허용'),
+    ('REJECT', '거절'),
 )
 
 class SuggestionReviewForm(forms.Form):

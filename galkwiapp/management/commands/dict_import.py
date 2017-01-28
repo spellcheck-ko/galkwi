@@ -37,7 +37,7 @@ class ImporterV1(sax.ContentHandler):
         if name == 'Entry':
             self.word.save()
             self.rev.word = self.word
-            self.rev.status = 'APPROVED'
+            self.rev.status = Revision.STATUS_APPROVED
             self.rev.save()
             self.entry.update_rev(self.rev)
             self.entry.save()
@@ -50,7 +50,7 @@ class ImporterV1(sax.ContentHandler):
                     rev.user = e
                     rev.timestamp = self.rev.timestamp
                     rev.parent = self.rev.parent
-                    rev.status = 'APPROVED'
+                    rev.status = Revision.STATUS_REPLACED
                     rev.entry = self.entry
                     rev.save()
                     self.rev.parent = rev
