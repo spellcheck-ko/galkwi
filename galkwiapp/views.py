@@ -101,7 +101,7 @@ def suggestion_index(request):
 def suggestion_add(request):
     data = {}
     if request.method == 'POST':
-        form = SuggestionAddForm(request.POST)
+        form = SuggestionEditForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
             # TODO: check duplicate
@@ -116,11 +116,11 @@ def suggestion_add(request):
             rev.save()
             if '_addanother' in request.POST:
                 data['submitted_rev'] = rev
-                data['form'] = SuggestionAddForm()
+                data['form'] = SuggestionEditForm()
             else:
                 return HttpResponseRedirect(rev.get_absolute_url())
     else:
-        data['form'] = SuggestionAddForm()
+        data['form'] = SuggestionEditForm()
     return render(request, 'galkwiapp/suggestion_add.html', data)
 
 
@@ -163,7 +163,7 @@ def suggestion_update(request, entry_id):
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
-        data['form'] = form = SuggestionUpdateForm(request.POST)
+        data['form'] = form = SuggestionEditForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
             word.save()
@@ -178,7 +178,7 @@ def suggestion_update(request, entry_id):
             rev.save()
             return HttpResponseRedirect(rev.get_absolute_url())
     else:
-        data['form'] = SuggestionUpdateForm(instance=entry.latest.word)
+        data['form'] = SuggestionEditForm(instance=entry.latest.word)
     data['entry'] = entry
     return render(request, 'galkwiapp/suggestion_update.html', data)
 

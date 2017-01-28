@@ -59,35 +59,15 @@ error_messages = {
 }
 
 
-class SuggestionAddForm(forms.ModelForm):
+class SuggestionEditForm(forms.ModelForm):
+    description = forms.CharField(label='설명', widget=forms.Textarea, required=False)
     comment = forms.CharField(label='제안 이유', required=False)
-
-    def clean_word(self):
-        word = self.cleaned_data.get('word')
-        if not word:
-            raise ValidationError(error_messages['required'])
-        return word
-
-    def clean_pos(self):
-        pos = self.cleaned_data.get('pos')
-        if not pos:
-            raise ValidationError(error_messages['required'])
-        return pos
-
     class Meta:
         model = Word
         exclude = []
-        # exclude = ['entry', 'action', 'status', 'user', 'reviewer' ]
 
 
 class SuggestionRemoveForm(forms.ModelForm):
     class Meta:
         model = Revision
         fields = ['review_comment']
-
-
-class SuggestionUpdateForm(forms.ModelForm):
-    comment = forms.CharField(label='제안 이유', required=False)
-    class Meta:
-        model = Word
-        exclude = []

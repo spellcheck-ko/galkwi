@@ -1,5 +1,6 @@
 from django.contrib import admin
 from galkwiapp.models import *
+from galkwiapp.forms import *
 
 WORD_FIELDS = ['word', 'pos', 'stem', 'props', 'etym', 'orig', 'comment']
 
@@ -24,7 +25,7 @@ class RevisionAdmin(admin.ModelAdmin):
 
 
 class WordAdmin(admin.ModelAdmin):
-    pass
+    form = SuggestionEditForm
 
 
 admin.site.register(User, UserAdmin)

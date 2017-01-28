@@ -30,6 +30,7 @@
 
 <p>
 <h3>제안</h3>
+
 {% if suggestions %}
 <p>진행 중인 제안</p>
 <table>
@@ -41,9 +42,14 @@
 </table>
 {% else %}
 <p>진행 중인 제안이 없습니다</p>
+{% endif %}
+
+<p>제안하기</p>
+
 <a href="{% url 'suggestion_remove' entry_id=entry.id %}">삭제 제안하기</a>
 <a href="{% url 'suggestion_update' entry_id=entry.id %}">변경 제안하기</a>
-{% endif %}
+
+<h3>히스토리</h3>
 
 {% comment %}
 {% if entry.suggestions_new %}

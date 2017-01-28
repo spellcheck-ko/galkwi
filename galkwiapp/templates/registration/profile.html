@@ -6,9 +6,12 @@
   <li>이름: {{ user.first_name }}</li>
   <li>성: {{ user.last_name }}</li>
   <li>전자메일: {{ user.email }}</li>
-  {% if perms.galkwi.can_suggest %}<li>제안 가능</li>{% endif %}
-  {% if perms.galkwi.can_review %}<li>리뷰 가능</li>{% endif %}
-</li>
+  </ul>
+
+  <h3>권한</h3>
+  <ul>
+  {% if perms.galkwiapp.can_suggest %}<li>제안 가능</li>{% endif %}
+  {% if perms.galkwiapp.can_review %}<li>리뷰 가능</li>{% endif %}
   </ul>
 </div>
 {% endblock %}
