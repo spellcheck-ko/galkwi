@@ -75,7 +75,7 @@ def entry_detail(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
     data = {}
     data['entry'] = entry
-    data['suggestions'] = Revision.objects.filter(entry=entry).filter(status=Revision.STATUS_VOTING)
+    data['revisions'] = Revision.objects.filter(entry=entry).filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REPLACED))
     return render(request, 'galkwiapp/entry_detail.html', data)
 
 SUGGESTIONS_PER_PAGE = 25
@@ -128,6 +128,7 @@ def suggestion_add(request):
 def suggestion_remove(request, entry_id):
     data = {}
     entry = get_object_or_404(Entry, pk=entry_id)
+
     # ensure that this entry is valid
     if entry.latest.deleted:
         return HttpResponseBadRequest(request)

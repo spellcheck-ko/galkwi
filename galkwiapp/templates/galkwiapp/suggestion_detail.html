@@ -68,7 +68,7 @@
 {% endifequal %}
 {% endif %}
 {% if not rev.status_is_voting %}
-<p>결과: {{ rev.status }}</p>
+<p>결과: {{ rev.status_name }}</p>
 <p>리뷰: {{ rev.reviewer.username }}</p>
 <p>리뷰 코멘트: {{ rev.review_comment }}</p>
 <p>리뷰 시각: {{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</p>

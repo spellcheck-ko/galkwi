@@ -118,7 +118,7 @@ class Revision(models.Model):
         return name
 
     def action_name(self):
-        if self.parent == None:
+        if self.parent is None:
             return 'ADD'
         else:
             if self.deleted:
@@ -127,13 +127,13 @@ class Revision(models.Model):
                 return 'UPDATE'
 
     def action_is_add(self):
-        return self.parent == None
+        return self.parent is None
 
     def action_is_remove(self):
-        return self.parent != None and self.deleted
+        return self.parent is not None and self.deleted
 
     def action_is_update(self):
-        return self.parent != None and not self.deleted
+        return self.parent is not None and not self.deleted
 
     def status_name(self):
         return Revision.STATUS_CHOICES[self.status][1]
@@ -165,7 +165,7 @@ class Revision(models.Model):
 
     def reject(self, reviewer, comment):
         self.status = Revision.STATUS_REJECTED
-        self.reviewer = user
+        self.reviewer = reviewer
         self.review_comment = comment
         self.save()
 

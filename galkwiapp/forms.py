@@ -39,29 +39,27 @@ class EntrySearchForm(forms.Form):
     word = forms.CharField(label='단어')
 
 
-SUGGESTION_REVIEW_CHOICES = (
-    ('HOLD', '보류'),
-    ('APPROVE', '허용'),
-    ('REJECT', '거절'),
-)
-
 class SuggestionReviewForm(forms.Form):
-    review = forms.ChoiceField(choices=SUGGESTION_REVIEW_CHOICES, widget=forms.RadioSelect())
+    REVIEW_CHOICES = (
+        ('HOLD', '보류'),
+        ('APPROVE', '허용'),
+        ('REJECT', '거절'),
+    )
+
+    review = forms.ChoiceField(choices=REVIEW_CHOICES,
+                               widget=forms.RadioSelect())
     comment = forms.CharField(label='리뷰 이유', required=False)
 
 
 class SuggestionCancelForm(forms.Form):
     pass
 
-error_messages = {
-    'required': _('This field is required.'),
-    'invalid': _('Enter a valid value.'),
-}
-
 
 class SuggestionEditForm(forms.ModelForm):
-    description = forms.CharField(label='설명', widget=forms.Textarea, required=False)
+    description = forms.CharField(label='설명', widget=forms.Textarea,
+                                  required=False)
     comment = forms.CharField(label='제안 이유', required=False)
+
     class Meta:
         model = Word
         exclude = []
@@ -71,3 +69,9 @@ class SuggestionRemoveForm(forms.ModelForm):
     class Meta:
         model = Revision
         fields = ['review_comment']
+
+
+error_messages = {
+    'required': _('This field is required.'),
+    'invalid': _('Enter a valid value.'),
+}
