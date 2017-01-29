@@ -5,12 +5,14 @@ from datetime import datetime
 from galkwiapp.models import *
 from xml import sax
 
+
 class ImporterV1(sax.ContentHandler):
     def __init__(self):
         self.text = ''
         self.elements = []
         self.users = {}
         self.count = 0
+        self.now = timezone.now().astimezone(timezone.utc)
 
     def find_or_add_user(self, username):
         q = User.objects.filter(username=username)
@@ -38,6 +40,8 @@ class ImporterV1(sax.ContentHandler):
             self.word.save()
             self.rev.word = self.word
             self.rev.status = Revision.STATUS_APPROVED
+            self.rev.review_comment = '버전1에서 가져옴'
+            self.rev.review_timestamp = self.now
             self.rev.save()
             self.entry.update_rev(self.rev)
             self.entry.save()
@@ -46,11 +50,13 @@ class ImporterV1(sax.ContentHandler):
                 if e != self.rev.user:
                     # append fake history
                     rev = Revision()
-                    rev.word = self.word # use the same word?
+                    rev.word = self.word  # use the same word
                     rev.user = e
                     rev.timestamp = self.rev.timestamp
                     rev.parent = self.rev.parent
                     rev.status = Revision.STATUS_REPLACED
+                    rev.review_comment = '버전1에서 가져옴'
+                    rev.review_timestamp = self.now
                     rev.entry = self.entry
                     rev.save()
                     self.rev.parent = rev
@@ -79,7 +85,7 @@ class ImporterV1(sax.ContentHandler):
             self.rev.user = user
         elif name == 'date':
             d = datetime.strptime(self.text, '%Y-%m-%d %H:%M:%S')
-            self.rev.timestamp = datetime(d.year, d.month, d.day, d.hour, d.month, d.second, 0, timezone.utc)
+            self.rev.timestamp = datetime(d.year, d.month, d.day, d.hour, d.minute, d.second, 0, timezone.utc)
         elif name == 'name' and self.elements[-2] == 'editors':
             user = self.find_or_add_user(self.text)
             self.editors.append(user)
