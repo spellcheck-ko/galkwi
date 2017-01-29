@@ -3,8 +3,10 @@
 <div class="suggestion">
 <form action="" method="post">{% csrf_token %}
 <table>
-{{ form.as_p }}
+{{ form }}
 </table>
+{% include "galkwiapp/_suggestion_terms.html" %}
+<p>
 <input type="submit" value="저장하기" />
 </form>
 

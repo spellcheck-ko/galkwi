@@ -4,7 +4,6 @@ from django.utils import timezone
 
 
 class User(auth_models.AbstractUser):
-    tos_rev = models.DateTimeField(verbose_name='약관 동의', null=True, blank=True)
     REQUIRED_FIELDS = ['email']
 
 POS_CHOICES = [

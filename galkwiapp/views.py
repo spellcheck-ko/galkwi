@@ -102,6 +102,7 @@ def suggestion_add(request):
     data = {}
     if request.method == 'POST':
         form = SuggestionEditForm(request.POST)
+        terms_form = TermsAgreeForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
             # TODO: check duplicate
@@ -117,10 +118,15 @@ def suggestion_add(request):
             if '_addanother' in request.POST:
                 data['submitted_rev'] = rev
                 data['form'] = SuggestionEditForm()
+                data['terms_form'] = TermsAgreeForm()
             else:
                 return HttpResponseRedirect(rev.get_absolute_url())
+        else:
+            data['form'] = form
+            data['terms_form'] = terms_form
     else:
         data['form'] = SuggestionEditForm()
+        data['terms_form'] = TermsAgreeForm()
     return render(request, 'galkwiapp/suggestion_add.html', data)
 
 
@@ -137,7 +143,8 @@ def suggestion_remove(request, entry_id):
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
-        data['form'] = form = SuggestionRemoveForm(request.POST)
+        form = SuggestionRemoveForm(request.POST)
+        terms_form = TermsAgreeForm(request.POST)
         if form.is_valid():
             rev = form.save(commit=False)
             rev.entry = entry
@@ -148,8 +155,11 @@ def suggestion_remove(request, entry_id):
             rev.user = request.user
             rev.save()
             return HttpResponseRedirect(rev.get_absolute_url())
+        data['form'] = form
+        data['terms_form'] = terms_form
     else:
         data['form'] = SuggestionRemoveForm()
+        data['terms_form'] = TermsAgreeForm()
     data['entry'] = entry
     return render(request, 'galkwiapp/suggestion_remove.html', data)
 
@@ -164,7 +174,8 @@ def suggestion_update(request, entry_id):
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
-        data['form'] = form = SuggestionEditForm(request.POST)
+        form = SuggestionEditForm(request.POST)
+        terms_form = TermsAgreeForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
             word.save()
@@ -178,8 +189,11 @@ def suggestion_update(request, entry_id):
             rev.user = request.user
             rev.save()
             return HttpResponseRedirect(rev.get_absolute_url())
+        data['form'] = form
+        data['terms_form'] = terms_form
     else:
         data['form'] = SuggestionEditForm(instance=entry.latest.word)
+        data['terms_form'] = TermsAgreeForm()
     data['entry'] = entry
     return render(request, 'galkwiapp/suggestion_update.html', data)
 
