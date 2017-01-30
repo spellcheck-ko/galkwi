@@ -103,7 +103,7 @@ def suggestion_add(request):
     if request.method == 'POST':
         form = SuggestionEditForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if form.is_valid():
+        if terms_form.is_valid and form.is_valid():
             word = form.save(commit=False)
             # TODO: check duplicate
             word.save()
@@ -145,7 +145,7 @@ def suggestion_remove(request, entry_id):
     if request.method == 'POST':
         form = SuggestionRemoveForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if form.is_valid():
+        if terms_form.is_valid and form.is_valid():
             rev = form.save(commit=False)
             rev.entry = entry
             rev.deleted = True
@@ -176,7 +176,7 @@ def suggestion_update(request, entry_id):
     if request.method == 'POST':
         form = SuggestionEditForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if form.is_valid():
+        if terms_form.is_valid and form.is_valid():
             word = form.save(commit=False)
             word.save()
             rev = Revision()

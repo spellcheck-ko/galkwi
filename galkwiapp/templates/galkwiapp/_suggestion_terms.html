@@ -2,11 +2,11 @@
 {{ terms_form.as_p }}
 <p>위 동의는 세션이 끝날 때까지 저장됩니다.
 <script src="/static/js/jquery-3.1.1.min.js"></script>
-<script src="/static/js/jquery.cookie.js"></script>
+<script src="/static/js/js.cookie.js"></script>
 <script>
 $(document).ready(function(){
-    var agree1 = $.cookie('galkwi_termsagree1');
-    var agree2 = $.cookie('galkwi_termsagree2');
+    var agree1 = Cookies.get('galkwi_termsagree1');
+    var agree2 = Cookies.get('galkwi_termsagree2');
     if (agree1 == 1) {
         $('#id_agree1').prop('checked', true);
     }
@@ -15,9 +15,9 @@ $(document).ready(function(){
     }
 });
 $('#id_agree1').click(function(){
-  $.cookie('galkwi_termsagree1', this.checked ? 1 : 0, { expires: 1 });
+  Cookies.set('galkwi_termsagree1', this.checked ? 1 : 0, { expires: 1 });
 });
 $('#id_agree2').click(function(){
-  $.cookie('galkwi_termsagree2', this.checked ? 1 : 0, { expires: 1 });
+  Cookies.set('galkwi_termsagree2', this.checked ? 1 : 0, { expires: 1 });
 });
 </script>
