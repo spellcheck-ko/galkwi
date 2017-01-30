@@ -68,7 +68,7 @@ class Entry(models.Model):
 
 class Revision(models.Model):
     STATUS_DRAFT = 0
-    STATUS_VOTING = 1
+    STATUS_REVIEWING = 1
     STATUS_CANCELED = 2
     STATUS_APPROVED = 3
     STATUS_REJECTED = 4
@@ -76,7 +76,7 @@ class Revision(models.Model):
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, '편집 중'),
-        (STATUS_VOTING, '투표 중'),
+        (STATUS_REVIEWING, '리뷰 중'),
         (STATUS_CANCELED, '취소'),
         (STATUS_APPROVED, '허용'),
         (STATUS_REJECTED, '거절'),
@@ -140,14 +140,14 @@ class Revision(models.Model):
     def status_is_approved(self):
         return self.status == Revision.STATUS_APPROVED
 
-    def status_is_voting(self):
-        return self.status == Revision.STATUS_VOTING
+    def status_is_reviewing(self):
+        return self.status == Revision.STATUS_REVIEWING
 
     def get_absolute_url(self):
         return '/suggestion/%d/' % (self.id)
 
     def approve(self, reviewer, comment):
-        if self.status != Revision.STATUS_VOTING:
+        if self.status != Revision.STATUS_REVIEWING:
             return
         if self.action_is_add():
             entry = Entry()

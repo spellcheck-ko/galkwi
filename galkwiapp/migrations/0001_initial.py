@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
             name='Revision',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.IntegerField(choices=[(0, '편집 중'), (1, '투표 중'), (2, '취소'), (3, '허용'), (4, '거절'), (5, '대체됨')], verbose_name='상태')),
+                ('status', models.IntegerField(choices=[(0, '편집 중'), (1, '리뷰 중'), (2, '취소'), (3, '허용'), (4, '거절'), (5, '대체됨')], verbose_name='상태')),
                 ('deleted', models.BooleanField(default=False, verbose_name='삭제')),
                 ('comment', models.CharField(blank=True, max_length=1000, verbose_name='설명')),
                 ('timestamp', models.DateTimeField(verbose_name='제안 시각')),

@@ -83,7 +83,7 @@ SUGGESTIONS_PAGE_RANGE = 3
 
 
 def suggestion_index(request):
-    query = Revision.objects.filter(status=Revision.STATUS_VOTING).order_by('-timestamp')
+    query = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('-timestamp')
     paginator = Paginator(query, SUGGESTIONS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
@@ -113,7 +113,7 @@ def suggestion_add(request):
             rev.action = 'ADD'
             rev.timestamp = timezone.now()
             rev.user = request.user
-            rev.status = Revision.STATUS_VOTING
+            rev.status = Revision.STATUS_REVIEWING
             rev.save()
             if '_addanother' in request.POST:
                 data['submitted_rev'] = rev
@@ -139,7 +139,7 @@ def suggestion_remove(request, entry_id):
     if entry.latest.deleted:
         return HttpResponseBadRequest(request)
     # ensure there is no other running suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_VOTING)
+    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_REVIEWING)
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -149,7 +149,7 @@ def suggestion_remove(request, entry_id):
             rev = form.save(commit=False)
             rev.entry = entry
             rev.deleted = True
-            rev.status = Revision.STATUS_VOTING
+            rev.status = Revision.STATUS_REVIEWING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
@@ -170,7 +170,7 @@ def suggestion_update(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
 
     # ensure there is no other suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_VOTING)
+    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_REVIEWING)
     if existing.count() > 0:
         return HttpResponseBadRequest(request)
     if request.method == 'POST':
@@ -183,7 +183,7 @@ def suggestion_update(request, entry_id):
             rev.entry = entry
             rev.word = word
             rev.deleted = False
-            rev.status = Revision.STATUS_VOTING
+            rev.status = Revision.STATUS_REVIEWING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
@@ -202,7 +202,7 @@ def suggestion_detail(request, rev_id):
     rev = get_object_or_404(Revision, pk=rev_id)
     data = {}
     data['rev'] = rev
-    if rev.status == Revision.STATUS_VOTING:
+    if rev.status == Revision.STATUS_REVIEWING:
         if request.user.has_perm('galkwiapp.can_review'):
             data['review_form'] = SuggestionReviewForm()
         if request.user == rev.user:
@@ -212,7 +212,7 @@ def suggestion_detail(request, rev_id):
 
 @permission_required('galkwiapp.can_review')
 def suggestion_review_one(request):
-    revs = Revision.objects.filter(status=Revision.STATUS_VOTING).order_by('timestamp')
+    revs = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('timestamp')
     for rev in revs:
         return HttpResponseRedirect(rev.get_absolute_url())
     return render(request, 'galkwiapp/suggestion_review_end.html')
@@ -222,9 +222,8 @@ def suggestion_review_one(request):
 def suggestion_review(request, rev_id):
     if request.method == 'POST':
         rev = get_object_or_404(Revision, pk=rev_id)
-        if rev.status != Revision.STATUS_VOTING:
+        if rev.status != Revision.STATUS_REVIEWING:
             return HttpResponseBadRequest(request)
-        # retrieve previous vote if any
         form = SuggestionReviewForm(request.POST)
         if form.is_valid():
             review = form.cleaned_data['review']
@@ -250,7 +249,7 @@ def suggestion_cancel(request, rev_id):
         # check if it's my suggestion
         if rev.user != request.user:
             return HttpResponseBadRequest(request)
-        if rev.status != Revision.STATUS_VOTING:
+        if rev.status != Revision.STATUS_REVIEWING:
             return HttpResponseBadRequest(request)
         form = SuggestionCancelForm(request.POST)
         if form.is_valid():

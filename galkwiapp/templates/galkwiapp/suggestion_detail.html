@@ -59,7 +59,7 @@
 </tr>
 </table>
 {% endif %}
-{% if rev.status_is_voting %}
+{% if rev.status_is_reviewing %}
 {% ifequal rev.user user %}
 <form action="{% url 'suggestion_cancel' rev_id=rev.id %}" method="post">{% csrf_token %}
 {{ cancel_form }}
@@ -67,13 +67,13 @@
 </form>
 {% endifequal %}
 {% endif %}
-{% if not rev.status_is_voting %}
+{% if not rev.status_is_reviewing %}
 <p>결과: {{ rev.status_name }}</p>
 <p>리뷰: {{ rev.reviewer.username }}</p>
 <p>리뷰 코멘트: {{ rev.review_comment }}</p>
 <p>리뷰 시각: {{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</p>
 {% endif %}
-{% if rev.status_is_voting %}{% if perms.galkwiapp.can_review %}
+{% if rev.status_is_reviewing %}{% if perms.galkwiapp.can_review %}
 <h3>리뷰</h3>
 <form action="{% url 'suggestion_review' rev_id=rev.id %}" method="POST">{% csrf_token %}
 <table>
