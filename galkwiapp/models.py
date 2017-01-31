@@ -34,6 +34,11 @@ class Word(models.Model):
         name = '%s(%s)' % (self.word, self.pos)
         return name
 
+    class Meta:
+        index_together = [
+            ['word', 'pos']
+        ]
+
 
 class Entry(models.Model):
     title = models.CharField(verbose_name='제목', max_length=100)
@@ -163,9 +168,10 @@ class Revision(models.Model):
         self.save()
 
     def reject(self, reviewer, comment):
-        self.status = Revision.STATUS_REJECTED
         self.reviewer = reviewer
         self.review_comment = comment
+        self.review_timestamp = timezone.now()
+        self.status = Revision.STATUS_REJECTED
         self.save()
 
     def cancel(self):

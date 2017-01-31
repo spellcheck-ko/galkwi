@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="suggestion">
-{% if submitted_suggestion %}
-<ul class="messagelist"><a href="{% url 'suggestion' suggestion_id=submitted_suggestion.id %}">{{ submitted_suggestion.word.word }}</a>({{ submitted_suggestion.word.pos }})' 제안이 잘 생성되었습니다.</ul>
+{% if submitted_rev %}
+<ul class="messagelist"><li><a href="{% url 'suggestion' rev_id=submitted_rev.id %}">{{ submitted_rev.word.word }}</a>({{ submitted_rev.word.pos }})' 제안이 잘 생성되었습니다.</li></ul>
 {% endif %}
 <form action="" method="post">{% csrf_token %}
 <table>

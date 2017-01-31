@@ -12,18 +12,15 @@
   <td>{{ rev.action_name }}</td>
   <td>{{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</td>
 {% if rev.action_is_remove %}
-  <td>{{ rev.parent.word }}</td>
-  <td>{{ rev.parent.pos }}</td>
-  <td>{% if rev.parent.props %}{{ rev.parent.props }}{% endif %}</td>
+  <td>{{ rev.parent.word.word }}({{ rev.parent.word.pos }})</td>
+  <td>{{ rev.user.username }}</td>
   <td>{% if rev.parent.comment %}{{ rev.parent.comment|truncatewords:4 }}{% endif %}</td>
 {% else %}
-{% ifequal rev.status "APPROVED" %}
-  <td><a href="{{ rev.entry.get_absolute_url }}">{{ rev.word }}</a></td>
+{% if rev.status_is_approved %}
+  <td><a href="{{ rev.entry.get_absolute_url }}">{{ rev.word.word }}({{ rev.word.pos }})</a></td>
 {% else %}
-  <td>{{ rev.word.word }}</td>
-{% endifequal %}
-  <td>{{ rev.word.pos }}</td>
-  <td>{% if rev.word.props %}{{ rev.word.props }}{% endif %}</td>
+  <td>{{ rev.word.word }}({{ rev.word.pos }})</td>
+{% endif %}
   <td>{{ rev.user.username }}</td>
   <td>{% if rev.comment %}{{ rev.comment|truncatewords:4 }}{% endif %}</td>
 {% endif %}

@@ -30,13 +30,15 @@
 
 <h3>제안</h3>
 
-{% if suggestions %}
+{% if revisions %}
 <p>진행 중인 제안</p>
 <table>
-{% for rev in suggestions %}
+{% for rev in revisions %}
+<tr>
 <td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
 <td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
 <td>{{ rev.user.username }}</td>
+</tr>
 {% endfor %}
 </table>
 {% else %}
@@ -51,7 +53,7 @@
 <h3>역사</h3>
 
 <table>
-{% for rev in revisions %}
+{% for rev in history %}
 <tr>
 <td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
 <td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>

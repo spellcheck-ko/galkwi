@@ -3,7 +3,7 @@
 <div class="suggestion">
 <table>
 <tr>
-  <td>{{ rev.action }}</td>
+  <td>{{ rev.action_name }}</td>
   <td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
   <td>{{ rev.user.username }}</td>
   <td>{% if rev.comment %}{{ rev.comment }}{% endif %}</td>

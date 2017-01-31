@@ -28,8 +28,10 @@ class SuggestionCancelForm(forms.Form):
 
 
 class SuggestionEditForm(forms.ModelForm):
+    # override widget
     description = forms.CharField(label='설명', widget=forms.Textarea,
                                   required=False)
+    # add comment
     comment = forms.CharField(label='제안 이유', required=False)
 
     class Meta:
@@ -37,10 +39,9 @@ class SuggestionEditForm(forms.ModelForm):
         exclude = []
 
 
-class SuggestionRemoveForm(forms.ModelForm):
-    class Meta:
-        model = Revision
-        fields = ['review_comment']
+class SuggestionRemoveForm(forms.Form):
+    # add comment
+    comment = forms.CharField(label='제안 이유', required=True)
 
 
 class TermsAgreeForm(forms.Form):

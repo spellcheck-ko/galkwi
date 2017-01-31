@@ -75,7 +75,8 @@ def entry_detail(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
     data = {}
     data['entry'] = entry
-    data['revisions'] = Revision.objects.filter(entry=entry).filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REPLACED))
+    data['revisions'] = Revision.objects.filter(entry=entry).filter(status=Revision.STATUS_REVIEWING)
+    data['history'] = Revision.objects.filter(entry=entry).filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REPLACED))
     return render(request, 'galkwiapp/entry_detail.html', data)
 
 SUGGESTIONS_PER_PAGE = 25
@@ -103,9 +104,12 @@ def suggestion_add(request):
     if request.method == 'POST':
         form = SuggestionEditForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid and form.is_valid():
+        if terms_form.is_valid() and form.is_valid():
             word = form.save(commit=False)
-            # TODO: check duplicate
+            # check duplicate
+            existing = Revision.objects.filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)).filter(word__word=word.word, word__pos=word.pos)
+            if existing.count() > 0:
+                return HttpResponseBadRequest(request)
             word.save()
             rev = Revision()
             rev.word = word
@@ -114,6 +118,7 @@ def suggestion_add(request):
             rev.timestamp = timezone.now()
             rev.user = request.user
             rev.status = Revision.STATUS_REVIEWING
+            rev.comment = form.cleaned_data['comment']
             rev.save()
             if '_addanother' in request.POST:
                 data['submitted_rev'] = rev
@@ -138,21 +143,18 @@ def suggestion_remove(request, entry_id):
     # ensure that this entry is valid
     if entry.latest.deleted:
         return HttpResponseBadRequest(request)
-    # ensure there is no other running suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_REVIEWING)
-    if existing.count() > 0:
-        return HttpResponseBadRequest(request)
     if request.method == 'POST':
         form = SuggestionRemoveForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid and form.is_valid():
-            rev = form.save(commit=False)
+        if terms_form.is_valid() and form.is_valid():
+            rev = Revision()
             rev.entry = entry
             rev.deleted = True
             rev.status = Revision.STATUS_REVIEWING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
+            rev.comment = form.cleaned_data['comment']
             rev.save()
             return HttpResponseRedirect(rev.get_absolute_url())
         data['form'] = form
@@ -170,23 +172,29 @@ def suggestion_update(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
 
     # ensure there is no other suggestion on this entry
-    existing = Revision.objects.filter(entry=entry, status=Revision.STATUS_REVIEWING)
-    if existing.count() > 0:
-        return HttpResponseBadRequest(request)
     if request.method == 'POST':
         form = SuggestionEditForm(request.POST)
         terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid and form.is_valid():
+        if terms_form.is_valid() and form.is_valid():
             word = form.save(commit=False)
+            # check duplicate
+            existing = Revision.objects.filter(
+                    Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)
+            ).filter(word__word=word.word, word__pos=word.pos
+            ).exclude(entry=entry)
+            if existing.count() > 0:
+                print('ERROR: duplicate revisions')
+                return HttpResponseBadRequest(request)
             word.save()
             rev = Revision()
             rev.entry = entry
             rev.word = word
             rev.deleted = False
-            rev.status = Revision.STATUS_REVIEWING
             rev.timestamp = timezone.now()
             rev.parent = entry.latest
             rev.user = request.user
+            rev.status = Revision.STATUS_REVIEWING
+            rev.comment = form.cleaned_data['comment']
             rev.save()
             return HttpResponseRedirect(rev.get_absolute_url())
         data['form'] = form
@@ -230,6 +238,10 @@ def suggestion_review(request, rev_id):
             comment = form.cleaned_data['comment']
             if review == 'APPROVE':
                 rev.approve(request.user, comment)
+                # reject other suggestions
+                others = Revision.objects.filter(entry=rev.entry, status=Revision.STATUS_REVIEWING)
+                for o in others:
+                    o.reject(request.user, 'rejected by other suggestion %s' % rev.get_absolute_url())
             elif review == 'REJECT':
                 rev.reject(request.user, comment)
             if '_reviewone' in request.POST:
