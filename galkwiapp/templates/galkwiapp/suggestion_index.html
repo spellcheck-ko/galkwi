@@ -12,7 +12,7 @@
 {% for suggestion in page.object_list %}
 <tr>
   <td><a href="{{ suggestion.get_absolute_url }}">{{ suggestion.action_name }}</a></td>
-  <td>{{ suggestion.timestamp|date }} {{ suggestion.timestamp|time }}</td>
+  <td>{{ suggestion.timestamp }}</td>
 {% if suggestion.action_is_remove %}
   <td>{{ suggestion.parent.word.word }}</td>
   <td>{{ suggestion.parent.word.pos }}</td>

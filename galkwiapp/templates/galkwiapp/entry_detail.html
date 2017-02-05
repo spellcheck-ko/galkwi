@@ -10,7 +10,7 @@
   <td>{{ entry.latest.word.pos }}</td>
   <td>{% if entry.latest.word.props %}{{ entry.latest.word.props }}{% endif %}</td>
   <td>{{ entry.latest.user.username }}</td>
-  <td>{{ entry.latest.timestamp|date }} {{ entry.latest.timestamp|time }}</td>
+  <td>{{ entry.latest.timestamp }}</td>
   <td>{% if entry.latest.word.description %}{{ entry.latest.word.description }}{% endif %}</td>
 </tr>
 </table>
@@ -22,7 +22,7 @@
   <td>{{ entry.latest.parent.word.pos }}</td>
   <td>{% if entry.latest.parent.word.props %}{{ entry.latest.parent.word.props }}{% endif %}</td>
   <td>{{ entry.latest.parent.user.username }}</td>
-  <td>{{ entry.latest.parent.timestamp|date }} {{ entry.latest.parent.timestamp|time }}</td>
+  <td>{{ entry.latest.parent.timestamp }}</td>
   <td>{% if entry.latest.parent.word.description %}{{ entry.latest.parent.word.description }}{% endif %}</td>
 </tr>
 </table>
@@ -36,7 +36,7 @@
 {% for rev in revisions %}
 <tr>
 <td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
-<td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
+<td>{{ rev.timestamp }}</td>
 <td>{{ rev.user.username }}</td>
 </tr>
 {% endfor %}
@@ -56,7 +56,7 @@
 {% for rev in history %}
 <tr>
 <td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
-<td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
+<td>{{ rev.timestamp }}</td>
 <td>{{ rev.user.username }}</td>
 <td>{{ rev.status_name }}</td>
 </tr>

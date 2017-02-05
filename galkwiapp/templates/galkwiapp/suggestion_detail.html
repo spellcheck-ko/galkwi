@@ -4,7 +4,7 @@
 <table>
 <tr>
   <td>{{ rev.action_name }}</td>
-  <td>{{ rev.timestamp|date }} {{ rev.timestamp|time }}</td>
+  <td>{{ rev.timestamp }}</td>
   <td>{{ rev.user.username }}</td>
   <td>{% if rev.comment %}{{ rev.comment }}{% endif %}</td>
 </tr>
@@ -71,7 +71,7 @@
 <p>결과: {{ rev.status_name }}</p>
 <p>리뷰: {{ rev.reviewer.username }}</p>
 <p>리뷰 코멘트: {{ rev.review_comment }}</p>
-<p>리뷰 시각: {{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</p>
+<p>리뷰 시각: {{ rev.review_timestamp }}</p>
 {% endif %}
 {% if rev.status_is_reviewing %}{% if perms.galkwiapp.can_review %}
 <h3>리뷰</h3>

@@ -10,7 +10,7 @@
 <tr>
   <td><a href="{{ rev.get_absolute_url }}">{{ rev.status_name }}</a></td>
   <td>{{ rev.action_name }}</td>
-  <td>{{ rev.review_timestamp|date }} {{ rev.review_timestamp|time }}</td>
+  <td>{{ rev.review_timestamp }}</td>
 {% if rev.action_is_remove %}
   <td>{{ rev.parent.word.word }}({{ rev.parent.word.pos }})</td>
   <td>{{ rev.user.username }}</td>
