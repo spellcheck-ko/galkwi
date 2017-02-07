@@ -1,3 +1,16 @@
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'galkwi',
+#         'USER': 'mydatabaseuser',
+#         'PASSWORD': 'mypassword',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
+
+# ALLOWED_HOSTS = ['']
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
