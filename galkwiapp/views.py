@@ -47,25 +47,16 @@ def entry_index(request):
             word = form.cleaned_data['word']
             data['word'] = word
             query = Entry.objects.filter(latest__deleted=False).filter(latest__word__word__contains=word)
-            query.order_by('word')
-            paginator = Paginator(query, ENTRIES_PER_PAGE)
-            page = int(request.GET.get('page', '1'))
-            try:
-                data['page'] = paginator.page(page)
-            except InvalidPage:
-                raise Http404
-            data['form'] = form
         else:
             query = Entry.objects.filter(latest__deleted=False)
-            query.order_by('word')
-            paginator = Paginator(query, ENTRIES_PER_PAGE)
-            page = int(request.GET.get('page', '1'))
-            try:
-                data['page'] = paginator.page(page)
-            except InvalidPage:
-                raise Http404
-
-            data['form'] = EntrySearchForm()
+        query.order_by('word')
+        paginator = Paginator(query, ENTRIES_PER_PAGE)
+        page = int(request.GET.get('page', '1'))
+        try:
+            data['page'] = paginator.page(page)
+        except InvalidPage:
+            raise Http404
+        data['form'] = form
     else:
         data['form'] = EntrySearchForm()
     return render(request, 'galkwiapp/entry_index.html', data)
