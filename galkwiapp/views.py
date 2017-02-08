@@ -274,7 +274,11 @@ def suggestion_cancel(request, rev_id):
 
 
 def suggestion_recentchanges(request):
-    query = Revision.objects.order_by('-timestamp')
+    query = Revision.objects.filter(
+            Q(status=Revision.STATUS_APPROVED) |
+            Q(status=Revision.STATUS_REJECTED) |
+            Q(status=Revision.STATUS_REPLACED)
+    ).order_by('-timestamp')
     paginator = Paginator(query, SUGGESTIONS_PER_PAGE)
     page = int(request.GET.get('page', '1'))
     data = {}
