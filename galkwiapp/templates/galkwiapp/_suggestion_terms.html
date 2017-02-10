@@ -5,19 +5,25 @@
 <script src="/static/js/js.cookie.js"></script>
 <script>
 $(document).ready(function(){
-    var agree1 = Cookies.get('galkwi_termsagree1');
-    var agree2 = Cookies.get('galkwi_termsagree2');
-    if (agree1 == 1) {
-        $('#id_agree1').prop('checked', true);
+    var agree_license = Cookies.get('galkwi_agree_license');
+    var agree_responsible = Cookies.get('galkwi_agree_responsible');
+    if (agree_license == 1) {
+        $('#id_agree_license').prop('checked', true);
     }
-    if (agree2 == 1) {
-        $('#id_agree2').prop('checked', true);
+    if (agree_responsible == 1) {
+        $('#id_agree_responsible').prop('checked', true);
     }
 });
-$('#id_agree1').click(function(){
-  Cookies.set('galkwi_termsagree1', this.checked ? 1 : 0, { expires: 1 });
+$('#id_agree_license').click(function(){
+  Cookies.set('galkwi_agree_license', this.checked ? 1 : 0, { expires: 1 });
 });
-$('#id_agree2').click(function(){
-  Cookies.set('galkwi_termsagree2', this.checked ? 1 : 0, { expires: 1 });
+$('#id_agree_responsible').click(function(){
+  Cookies.set('galkwi_agree_responsible', this.checked ? 1 : 0, { expires: 1 });
 });
+function uncheck_responsible(){
+  $('#id_agree_responsible').prop('checked', false);
+  Cookies.set('galkwi_agree_responsible', 0, { expires: 1 });
+}
+$('#id_description').keyup(uncheck_responsible);
+$('#id_description').change(uncheck_responsible);
 </script>

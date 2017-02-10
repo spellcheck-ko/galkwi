@@ -45,14 +45,11 @@ class SuggestionRemoveForm(forms.Form):
 
 
 class TermsAgreeForm(forms.Form):
-    label1 = """
-기여한 내용을 MPL/GPL/LGPL 라이선스로 배포하는데 동의합니다. 이 동의는 철회할 수 없습니다.
-"""
-    label2 = """
-저작권 문제가 없는 데이터만 기여했습니다. 저작권 위반에 따른 책임은 기여자에게 있습니다.
-"""
-    agree1 = forms.BooleanField(label=label1)
-    agree2 = forms.BooleanField(label=label2)
+    label_license = "기여한 내용을 MPL/GPL/LGPL 라이선스로 배포하는데 동의합니다. 이 동의는 철회할 수 없습니다."
+    label_responsible = "저작권 문제가 없는 데이터만 기여했습니다. 저작권 위반에 따른 책임은 기여자에게 있습니다."
+
+    agree_license = forms.BooleanField(label=label_license)
+    agree_responsible = forms.BooleanField(label=label_responsible)
 
 
 error_messages = {
