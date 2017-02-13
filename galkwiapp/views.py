@@ -5,10 +5,11 @@ from django.core.paginator import Paginator, InvalidPage
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User, Permission
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic import ListView, TemplateView
+from django.views.generic import CreateView, ListView, TemplateView
 
 
 from galkwiapp.models import *
@@ -75,41 +76,67 @@ def suggestion_index(request):
     return render(request, 'galkwiapp/suggestion_index.html', data)
 
 
-@permission_required('galkwiapp.can_suggest')
-def suggestion_add(request):
-    data = {}
-    if request.method == 'POST':
-        form = SuggestionEditForm(request.POST)
-        terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid() and form.is_valid():
-            word = form.save(commit=False)
-            # check duplicate
-            existing = Revision.objects.filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)).filter(word__word=word.word, word__pos=word.pos)
-            if existing.count() > 0:
-                return HttpResponseBadRequest(request)
-            word.save()
-            rev = Revision()
-            rev.word = word
-            rev.deleted = False
-            rev.action = 'ADD'
-            rev.timestamp = timezone.now()
-            rev.user = request.user
-            rev.status = Revision.STATUS_REVIEWING
-            rev.comment = form.cleaned_data['comment']
-            rev.save()
-            if '_addanother' in request.POST:
-                data['submitted_rev'] = rev
-                data['form'] = SuggestionEditForm()
-                data['terms_form'] = TermsAgreeForm()
-            else:
-                return HttpResponseRedirect(rev.get_absolute_url())
+class SuggestionAddView(PermissionRequiredMixin, CreateView):
+    permission_required = 'galkwiapp.can_suggest'
+    model = Word
+    form_class = SuggestionEditForm
+    template_name = 'galkwiapp/suggestion_add.html'
+    object = None
+
+    def get_terms_form(self):
+        kwargs = {}
+        if self.request.method in ('POST', 'PUT'):
+            kwargs['data'] = self.request.POST
+
+        return TermsAgreeForm(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        terms_form = self.get_terms_form()
+
+        if form.is_valid() and terms_form.is_valid():
+            return self.form_valid(form, terms_form)
         else:
-            data['form'] = form
-            data['terms_form'] = terms_form
-    else:
-        data['form'] = SuggestionEditForm()
-        data['terms_form'] = TermsAgreeForm()
-    return render(request, 'galkwiapp/suggestion_add.html', data)
+            return self.form_invalid(form, terms_form)
+
+    def get_context_data(self, **kwargs):
+        if 'terms_form' not in kwargs:
+            kwargs['terms_form'] = self.get_terms_form()
+        return super(SuggestionAddView, self).get_context_data(**kwargs)
+
+    def form_valid(self, form, terms_form):
+        word = form.save(commit=False)
+        # check duplicate
+        existing = Revision.objects.filter(status__in=(
+            Revision.STATUS_APPROVED,
+            Revision.STATUS_REVIEWING,
+        )).filter(word__word=word.word, word__pos=word.pos)
+        if existing.count() > 0:
+            return HttpResponseBadRequest(self.request)
+        word.save()
+        rev = Revision()
+        rev.word = word
+        rev.deleted = False
+        rev.action = 'ADD'
+        rev.timestamp = timezone.now()
+        rev.user = self.request.user
+        rev.status = Revision.STATUS_REVIEWING
+        rev.comment = form.cleaned_data['comment']
+        rev.save()
+
+        if '_addanother' in self.request.POST:
+            return self.render_to_response(
+                self.get_context_data(form=SuggestionEditForm(),
+                                      terms_form=TermsAgreeForm(),
+                                      submitted_rev=rev)
+            )
+        else:
+            return HttpResponseRedirect(rev.get_absolute_url())
+
+    def form_invalid(self, form, terms_form):
+        return self.render_to_response(
+            self.get_context_data(form=form, terms_form=terms_form)
+        )
 
 
 @permission_required('galkwiapp.can_suggest')
