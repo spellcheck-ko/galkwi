@@ -41,7 +41,8 @@ urlpatterns = [
         name='suggestion_review_one'),
     url(r'^suggestion/cancel/(?P<rev_id>\d+)/$', views.suggestion_cancel,
         name='suggestion_cancel'),
-    url(r'^suggestion/recentchanges/$', views.suggestion_recentchanges,
+    url(r'^suggestion/recentchanges/$',
+        views.SugestionRecentChangesView.as_view(),
         name='suggestion_recentchanges'),
 
     url(r'^stat/$', views.StatView.as_view(), name='stat'),

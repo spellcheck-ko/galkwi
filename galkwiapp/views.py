@@ -8,7 +8,8 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import ListView, TemplateView
+
 
 from galkwiapp.models import *
 from galkwiapp.forms import *
@@ -249,20 +250,13 @@ def suggestion_cancel(request, rev_id):
         return HttpResponseBadRequest(request)
 
 
-def suggestion_recentchanges(request):
-    query = Revision.objects.filter(
-            Q(status=Revision.STATUS_APPROVED) |
-            Q(status=Revision.STATUS_REJECTED) |
-            Q(status=Revision.STATUS_REPLACED)
-    ).order_by('-timestamp')
-    paginator = Paginator(query, SUGGESTIONS_PER_PAGE)
-    page = int(request.GET.get('page', '1'))
-    data = {}
-    try:
-        data['page'] = paginator.page(page)
-    except InvalidPage:
-        raise Http404
-    return render(request, 'galkwiapp/suggestion_recentchanges.html', data)
+class SugestionRecentChangesView(ListView):
+    template_name = 'galkwiapp/suggestion_recentchanges.html'
+    queryset = Revision.objects.filter(status__in=(
+        Revision.STATUS_APPROVED, Revision.STATUS_REJECTED,
+        Revision.STATUS_REPLACED
+    )).order_by('-timestamp')
+    paginate_by = SUGGESTIONS_PER_PAGE
 
 
 class StatView(TemplateView):
