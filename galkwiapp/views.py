@@ -18,22 +18,6 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-def register(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            agree = form.cleaned_data['agree']
-            if agree:
-                ct = ContentType.objects.get_for_model(Revision)
-                p = Permission.objects.get(content_type=ct, codename='can_suggest')
-                request.user.user_permissions.add(p)
-                request.user.save()
-                return render(request, 'registration/registration_complete.html')
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'registration/registration_form.html', {'form': form})
-
-
 def profile(request):
     return render(request, 'registration/profile.html')
 

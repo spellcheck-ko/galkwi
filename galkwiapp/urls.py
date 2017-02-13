@@ -47,7 +47,6 @@ urlpatterns = [
     url(r'^stat/$', views.stat, name='stat'),
 
     url(r'^accounts/profile/$', views.profile, name='profile'),
-    url(r'^account/register/$', views.register, name='register'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
