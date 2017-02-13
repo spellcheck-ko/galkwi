@@ -44,9 +44,9 @@ urlpatterns = [
     url(r'^suggestion/recentchanges/$', views.suggestion_recentchanges,
         name='suggestion_recentchanges'),
 
-    url(r'^stat/$', views.stat, name='stat'),
+    url(r'^stat/$', views.StatView.as_view(), name='stat'),
 
-    url(r'^accounts/profile/$', views.profile, name='profile'),
+    url(r'^accounts/profile/$', views.ProfileView.as_view(), name='profile'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -18,8 +18,8 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-def profile(request):
-    return render(request, 'registration/profile.html')
+class ProfileView(TemplateView):
+    template_name = 'registration/profile.html'
 
 ENTRIES_PER_PAGE = 25
 
@@ -265,5 +265,5 @@ def suggestion_recentchanges(request):
     return render(request, 'galkwiapp/suggestion_recentchanges.html', data)
 
 
-def stat(request):
-    return render(request, 'galkwiapp/stat.html')
+class StatView(TemplateView):
+    template_name = 'galkwiapp/stat.html'
