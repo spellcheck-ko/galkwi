@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic import CreateView, ListView, TemplateView
+from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
 
 from galkwiapp.models import *
@@ -76,12 +76,11 @@ def suggestion_index(request):
     return render(request, 'galkwiapp/suggestion_index.html', data)
 
 
-class SuggestionAddView(PermissionRequiredMixin, CreateView):
-    permission_required = 'galkwiapp.can_suggest'
-    model = Word
-    form_class = SuggestionEditForm
-    template_name = 'galkwiapp/suggestion_add.html'
-    object = None
+class TermsFormMixin(object):
+    def get_context_data(self, **kwargs):
+        if 'terms_form' not in kwargs:
+            kwargs['terms_form'] = self.get_terms_form()
+        return super(TermsFormMixin, self).get_context_data(**kwargs)
 
     def get_terms_form(self):
         kwargs = {}
@@ -99,10 +98,21 @@ class SuggestionAddView(PermissionRequiredMixin, CreateView):
         else:
             return self.form_invalid(form, terms_form)
 
-    def get_context_data(self, **kwargs):
-        if 'terms_form' not in kwargs:
-            kwargs['terms_form'] = self.get_terms_form()
-        return super(SuggestionAddView, self).get_context_data(**kwargs)
+    def form_invalid(self, form, terms_form):
+        return self.render_to_response(
+            self.get_context_data(form=form, terms_form=terms_form)
+        )
+
+
+class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
+    permission_required = 'galkwiapp.can_suggest'
+    model = Word
+    form_class = SuggestionEditForm
+    template_name = 'galkwiapp/suggestion_add.html'
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        return super(SuggestionAddView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form, terms_form):
         word = form.save(commit=False)
@@ -132,11 +142,6 @@ class SuggestionAddView(PermissionRequiredMixin, CreateView):
             )
         else:
             return HttpResponseRedirect(rev.get_absolute_url())
-
-    def form_invalid(self, form, terms_form):
-        return self.render_to_response(
-            self.get_context_data(form=form, terms_form=terms_form)
-        )
 
 
 @permission_required('galkwiapp.can_suggest')
@@ -170,44 +175,44 @@ def suggestion_remove(request, entry_id):
     return render(request, 'galkwiapp/suggestion_remove.html', data)
 
 
-@permission_required('galkwiapp.can_suggest')
-def suggestion_update(request, entry_id):
-    data = {}
-    entry = get_object_or_404(Entry, pk=entry_id)
+class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
+    permission_required = 'galkwiapp.can_suggest'
+    form_class = SuggestionEditForm
+    template_name = 'galkwiapp/suggestion_update.html'
 
-    # ensure there is no other suggestion on this entry
-    if request.method == 'POST':
-        form = SuggestionEditForm(request.POST)
-        terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid() and form.is_valid():
-            word = form.save(commit=False)
-            # check duplicate
-            existing = Revision.objects.filter(
-                    Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)
-            ).filter(word__word=word.word, word__pos=word.pos
-            ).exclude(entry=entry)
-            if existing.count() > 0:
-                print('ERROR: duplicate revisions')
-                return HttpResponseBadRequest(request)
-            word.save()
-            rev = Revision()
-            rev.entry = entry
-            rev.word = word
-            rev.deleted = False
-            rev.timestamp = timezone.now()
-            rev.parent = entry.latest
-            rev.user = request.user
-            rev.status = Revision.STATUS_REVIEWING
-            rev.comment = form.cleaned_data['comment']
-            rev.save()
-            return HttpResponseRedirect(rev.get_absolute_url())
-        data['form'] = form
-        data['terms_form'] = terms_form
-    else:
-        data['form'] = SuggestionEditForm(instance=entry.latest.word)
-        data['terms_form'] = TermsAgreeForm()
-    data['entry'] = entry
-    return render(request, 'galkwiapp/suggestion_update.html', data)
+    def get_context_data(self, **kwargs):
+        kwargs['entry'] = self.get_entry()
+        return super(SuggestionUpdateView, self).get_context_data(**kwargs)
+
+    def get_entry(self):
+        return get_object_or_404(Entry, pk=self.kwargs['entry_id'])
+
+    def get_object(self):
+        return self.get_entry().latest.word
+
+    def form_valid(self, form, terms_form):
+        entry = self.get_entry()
+        word = form.save(commit=False)
+        # check duplicate
+        existing = Revision.objects.filter(
+                Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)
+        ).filter(word__word=word.word, word__pos=word.pos
+        ).exclude(entry=entry)
+        if existing.count() > 0:
+            print('ERROR: duplicate revisions')
+            return HttpResponseBadRequest(self.request)
+        word.save()
+        rev = Revision()
+        rev.entry = entry
+        rev.word = word
+        rev.deleted = False
+        rev.timestamp = timezone.now()
+        rev.parent = entry.latest
+        rev.user = self.request.user
+        rev.status = Revision.STATUS_REVIEWING
+        rev.comment = form.cleaned_data['comment']
+        rev.save()
+        return HttpResponseRedirect(rev.get_absolute_url())
 
 
 def suggestion_detail(request, rev_id):
