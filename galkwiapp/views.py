@@ -8,13 +8,14 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
+from django.views.generic import TemplateView
+
 from galkwiapp.models import *
 from galkwiapp.forms import *
 
 
-# Create your views here.
-def home(request):
-        return render(request, 'home.html', {})
+class HomeView(TemplateView):
+    template_name = 'home.html'
 
 
 def register(request):
