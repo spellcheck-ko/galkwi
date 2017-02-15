@@ -27,12 +27,30 @@ class SuggestionCancelForm(forms.Form):
     pass
 
 
+PROPS_LIST = ('가산명사', '단위명사', '보조용언:-어', '보조용언:-을', '보조용언:-은', '용언합성', '준말용언',
+              'ㄷ불규칙', 'ㅂ불규칙', 'ㅅ불규칙', 'ㅎ불규칙', '러불규칙', '르불규칙', '우불규칙', '으불규칙')
+PROPS_CHOICES = tuple(zip(PROPS_LIST, PROPS_LIST))
+
 class SuggestionEditForm(forms.ModelForm):
     # override widget
+    props = forms.MultipleChoiceField(label='속성', required=False, widget=forms.CheckboxSelectMultiple, choices=PROPS_CHOICES)
+
     description = forms.CharField(label='설명', widget=forms.Textarea,
                                   required=False)
     # add comment
     comment = forms.CharField(label='제안 이유', required=False)
+
+    def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:
+            if 'initial' not in kwargs:
+                kwargs['initial'] = {}
+            kwargs['initial']['props'] = kwargs['instance'].props.split(',')
+        super(SuggestionEditForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        word = super(SuggestionEditForm, self).save(*args, **kwargs)
+        word.props = ','.join(sorted(self.cleaned_data.get('props')))
+        return word
 
     class Meta:
         model = Word
