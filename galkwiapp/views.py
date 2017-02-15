@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, FormView, ListView, TemplateView, UpdateView
 
 
 from galkwiapp.models import *
@@ -144,35 +144,30 @@ class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
             return HttpResponseRedirect(rev.get_absolute_url())
 
 
-@permission_required('galkwiapp.can_suggest')
-def suggestion_remove(request, entry_id):
-    data = {}
-    entry = get_object_or_404(Entry, pk=entry_id)
+class SuggestionRemoveView(PermissionRequiredMixin, TermsFormMixin, FormView):
+    permission_required = 'galkwiapp.can_suggest'
+    form_class = SuggestionRemoveForm
+    template_name = 'galkwiapp/suggestion_remove.html'
 
-    # ensure that this entry is valid
-    if entry.latest.deleted:
-        return HttpResponseBadRequest(request)
-    if request.method == 'POST':
-        form = SuggestionRemoveForm(request.POST)
-        terms_form = TermsAgreeForm(request.POST)
-        if terms_form.is_valid() and form.is_valid():
-            rev = Revision()
-            rev.entry = entry
-            rev.deleted = True
-            rev.status = Revision.STATUS_REVIEWING
-            rev.timestamp = timezone.now()
-            rev.parent = entry.latest
-            rev.user = request.user
-            rev.comment = form.cleaned_data['comment']
-            rev.save()
-            return HttpResponseRedirect(rev.get_absolute_url())
-        data['form'] = form
-        data['terms_form'] = terms_form
-    else:
-        data['form'] = SuggestionRemoveForm()
-        data['terms_form'] = TermsAgreeForm()
-    data['entry'] = entry
-    return render(request, 'galkwiapp/suggestion_remove.html', data)
+    def get_context_data(self, **kwargs):
+        kwargs['entry'] = self.get_entry()
+        return super(SuggestionRemoveView, self).get_context_data(**kwargs)
+
+    def get_entry(self):
+        return get_object_or_404(Entry, pk=self.kwargs['entry_id'])
+
+    def form_valid(self, form, terms_form):
+        entry = self.get_entry()
+        rev = Revision()
+        rev.entry = entry
+        rev.deleted = True
+        rev.status = Revision.STATUS_REVIEWING
+        rev.timestamp = timezone.now()
+        rev.parent = entry.latest
+        rev.user = self.request.user
+        rev.comment = form.cleaned_data['comment']
+        rev.save()
+        return HttpResponseRedirect(rev.get_absolute_url())
 
 
 class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
