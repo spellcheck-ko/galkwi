@@ -1,21 +1,16 @@
-from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest
-from django.shortcuts import render, get_object_or_404
-from django.template import RequestContext
-from django.core.paginator import Paginator, InvalidPage
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.models import User, Permission
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.utils import timezone
 from django.views.generic import (CreateView, DetailView, FormView, ListView,
                                   TemplateView, UpdateView)
 
+from galkwiapp.models import Entry, Revision, Word
+from galkwiapp.forms import (EntrySearchForm, SuggestionEditForm,
+                             SuggestionRemoveForm, SuggestionReviewForm,
+                             SuggestionCancelForm, TermsAgreeForm)
 
-
-from galkwiapp.models import *
-from galkwiapp.forms import *
 
 SUGGESTIONS_PER_PAGE = 25
 SUGGESTIONS_PAGE_RANGE = 3
@@ -199,10 +194,9 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
         entry = self.get_entry()
         word = form.save(commit=False)
         # check duplicate
-        existing = Revision.objects.filter(
-                Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REVIEWING)
-        ).filter(word__word=word.word, word__pos=word.pos
-        ).exclude(entry=entry)
+        existing = Revision.objects.filter(status__in=(
+            Revision.STATUS_APPROVED, Revision.STATUS_REVIEWING
+        )).filter(word__word=word.word, word__pos=word.pos).exclude(entry=entry)
         if existing.count() > 0:
             print('ERROR: duplicate revisions')
             return HttpResponseBadRequest(self.request)
