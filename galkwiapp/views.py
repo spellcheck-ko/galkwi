@@ -21,6 +21,7 @@ SUGGESTIONS_PER_PAGE = 25
 SUGGESTIONS_PAGE_RANGE = 3
 ENTRIES_PER_PAGE = 25
 
+
 class HomeView(TemplateView):
     template_name = 'home.html'
 
@@ -228,12 +229,15 @@ class SuggestionDetailView(DetailView):
         return super(SuggestionDetailView, self).get_context_data(**kwargs)
 
 
-@permission_required('galkwiapp.can_review')
-def suggestion_review_one(request):
-    revs = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('timestamp')
-    for rev in revs:
-        return HttpResponseRedirect(rev.get_absolute_url())
-    return render(request, 'galkwiapp/suggestion_review_end.html')
+class SuggestionReviewOneView(PermissionRequiredMixin, TemplateView):
+    permission_required = 'galkwiapp.can_review'
+    template_name = 'galkwiapp/suggestion_review_end.html'
+
+    def get(self, request, *args, **kwargs):
+        revs = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('timestamp')
+        for rev in revs:
+            return HttpResponseRedirect(rev.get_absolute_url())
+        return super(SuggestionReviewOneView, self).get(request, *args, **kwargs)
 
 
 @permission_required('galkwiapp.can_review')

@@ -39,7 +39,7 @@ urlpatterns = [
         views.SuggestionUpdateView.as_view(), name='suggestion_update'),
     url(r'^suggestion/review/(?P<rev_id>\d+)/$', views.suggestion_review,
         name='suggestion_review'),
-    url(r'^suggestion/reviewone/$', views.suggestion_review_one,
+    url(r'^suggestion/reviewone/$', views.SuggestionReviewOneView.as_view(),
         name='suggestion_review_one'),
     url(r'^suggestion/cancel/(?P<rev_id>\d+)/$', views.suggestion_cancel,
         name='suggestion_cancel'),
