@@ -140,6 +140,14 @@ class SuggestionRemoveView(PermissionRequiredMixin, TermsFormMixin, FormView):
     form_class = SuggestionRemoveForm
     template_name = 'galkwiapp/suggestion_remove.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        entry = self.get_entry()
+        if entry.latest.deleted:
+            return HttpResponseBadRequest(request)
+
+        return super(SuggestionRemoveView, self).dispatch(request, *args,
+                                                          **kwargs)
+
     def get_context_data(self, **kwargs):
         kwargs['entry'] = self.get_entry()
         return super(SuggestionRemoveView, self).get_context_data(**kwargs)
