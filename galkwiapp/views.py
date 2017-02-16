@@ -30,27 +30,35 @@ class ProfileView(TemplateView):
     template_name = 'registration/profile.html'
 
 
-def entry_index(request):
-    data = {}
-    if request.method == 'GET':
-        form = EntrySearchForm(request.GET)
-        if form.is_valid():
-            word = form.cleaned_data['word']
-            data['word'] = word
-            query = Entry.objects.filter(latest__deleted=False).filter(latest__word__word__contains=word)
-        else:
-            query = Entry.objects.filter(latest__deleted=False)
-        query.order_by('word')
-        paginator = Paginator(query, ENTRIES_PER_PAGE)
-        page = int(request.GET.get('page', '1'))
-        try:
-            data['page'] = paginator.page(page)
-        except InvalidPage:
-            raise Http404
-        data['form'] = form
-    else:
-        data['form'] = EntrySearchForm()
-    return render(request, 'galkwiapp/entry_index.html', data)
+class EntryIndexView(ListView):
+    paginate_by = ENTRIES_PER_PAGE
+    template_name = 'galkwiapp/entry_index.html'
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.get_form()
+        return super(EntryIndexView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = Entry.objects.filter(latest__deleted=False)
+        if self.form.is_valid():
+            queryset = queryset.filter(latest__word__word__contains=self.form.cleaned_data['word'])
+
+        return queryset.order_by('latest__word__word')
+
+    def get_form(self):
+        return EntrySearchForm(self.get_form_kwargs())
+
+    def get_form_kwargs(self):
+        kwargs = {}
+
+        if self.request.method == 'GET':
+            kwargs['data'] = self.request.GET
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        kwargs['form'] = self.form
+        return super(EntryIndexView, self).get_context_data(**kwargs)
 
 
 class EntryDetailView(DetailView):

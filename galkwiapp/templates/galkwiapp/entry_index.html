@@ -9,14 +9,14 @@
 
 <a href="{% url 'suggestion_add' %}">단어 추가 제안하기</a>
 
-{% if page %}
+{% if page_obj %}
 <div class="search_result">
 <h3>검색 결과</h3>
 
-<p>전체 {{ page.paginator.count }}개</p>
+<p>전체 {{ paginator.count }}개</p>
 
 <table>
-{% for entry in page.object_list %}
+{% for entry in object_list %}
 <tr>
   <td><a href="{{ entry.get_absolute_url }}">{{ entry.latest.word.word }}({{entry.latest.word.pos}})</a></td>
   <td>{{ entry.latest.timestamp }}</td>
@@ -27,11 +27,11 @@
 </table>
 </div>
 <div class="paginator">
-{% if page.has_previous %}
-<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page.previous_page_number }}">이전</a>
+{% if page_obj.has_previous %}
+<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
 {% endif %}
-{% if page.has_next %}
-<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page.next_page_number }}">다음</a>
+{% if page_obj.has_next %}
+<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
 {% endif %}
 </div>
 {% endif %}

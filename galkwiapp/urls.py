@@ -23,7 +23,7 @@ from galkwiapp import views
 urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name='home'),
 
-    url(r'^entry/$', views.entry_index, name='entry_index'),
+    url(r'^entry/$', views.EntryIndexView.as_view(), name='entry_index'),
     url(r'^entry/(?P<entry_id>\d+)/$', views.EntryDetailView.as_view(),
         name='entry'),
 
