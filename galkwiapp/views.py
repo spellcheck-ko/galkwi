@@ -211,16 +211,21 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
         return HttpResponseRedirect(rev.get_absolute_url())
 
 
-def suggestion_detail(request, rev_id):
-    rev = get_object_or_404(Revision, pk=rev_id)
-    data = {}
-    data['rev'] = rev
-    if rev.status == Revision.STATUS_REVIEWING:
-        if request.user.has_perm('galkwiapp.can_review'):
-            data['review_form'] = SuggestionReviewForm()
-        if request.user == rev.user:
-            data['cancel_form'] = SuggestionCancelForm()
-    return render(request, 'galkwiapp/suggestion_detail.html', data)
+class SuggestionDetailView(DetailView):
+    model = Revision
+    pk_url_kwarg = 'rev_id'
+    template_name = 'galkwiapp/suggestion_detail.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['rev'] = self.object
+
+        if self.object.status == Revision.STATUS_REVIEWING:
+            if self.request.user.has_perm('galkwiapp.can_review'):
+                kwargs['review_form'] = SuggestionReviewForm()
+            if self.request.user == self.object.user:
+                kwargs['cancel_form'] = SuggestionCancelForm()
+
+        return super(SuggestionDetailView, self).get_context_data(**kwargs)
 
 
 @permission_required('galkwiapp.can_review')

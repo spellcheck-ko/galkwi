@@ -29,7 +29,7 @@ urlpatterns = [
 
     url(r'^suggestion/$', views.SuggestionIndexView.as_view(),
         name='suggestion_index'),
-    url(r'^suggestion/(?P<rev_id>\d+)/$', views.suggestion_detail,
+    url(r'^suggestion/(?P<rev_id>\d+)/$', views.SuggestionDetailView.as_view(),
         name='suggestion'),
     url(r'^suggestion/add/$', views.SuggestionAddView.as_view(),
         name='suggestion_add'),
