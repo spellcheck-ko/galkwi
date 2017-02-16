@@ -9,12 +9,17 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic import CreateView, FormView, ListView, TemplateView, UpdateView
+from django.views.generic import (CreateView, DetailView, FormView, ListView,
+                                  TemplateView, UpdateView)
+
 
 
 from galkwiapp.models import *
 from galkwiapp.forms import *
 
+SUGGESTIONS_PER_PAGE = 25
+SUGGESTIONS_PAGE_RANGE = 3
+ENTRIES_PER_PAGE = 25
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -22,8 +27,6 @@ class HomeView(TemplateView):
 
 class ProfileView(TemplateView):
     template_name = 'registration/profile.html'
-
-ENTRIES_PER_PAGE = 25
 
 
 def entry_index(request):
@@ -49,16 +52,15 @@ def entry_index(request):
     return render(request, 'galkwiapp/entry_index.html', data)
 
 
-def entry_detail(request, entry_id):
-    entry = get_object_or_404(Entry, pk=entry_id)
-    data = {}
-    data['entry'] = entry
-    data['revisions'] = Revision.objects.filter(entry=entry).filter(status=Revision.STATUS_REVIEWING)
-    data['history'] = Revision.objects.filter(entry=entry).filter(Q(status=Revision.STATUS_APPROVED) | Q(status=Revision.STATUS_REPLACED))
-    return render(request, 'galkwiapp/entry_detail.html', data)
+class EntryDetailView(DetailView):
+    model = Entry
+    pk_url_kwarg = 'entry_id'
+    template_name = 'galkwiapp/entry_detail.html'
 
-SUGGESTIONS_PER_PAGE = 25
-SUGGESTIONS_PAGE_RANGE = 3
+    def get_context_data(self, **kwargs):
+        kwargs['revisions'] = self.object.revision_set.filter(status=Revision.STATUS_REVIEWING)
+        kwargs['history'] = self.object.revision_set.filter(status__in=(Revision.STATUS_APPROVED, Revision.STATUS_REPLACED))
+        return super(EntryDetailView, self).get_context_data(**kwargs)
 
 
 class SuggestionIndexView(ListView):
