@@ -268,23 +268,24 @@ def suggestion_review(request, rev_id):
         return HttpResponseBadRequest(request)
 
 
-@permission_required('galkwiapp.can_suggest')
-def suggestion_cancel(request, rev_id):
-    if request.method == 'POST':
-        rev = get_object_or_404(Revision, pk=rev_id)
-        # check if it's my suggestion
-        if rev.user != request.user:
+class SuggestionCancelView(PermissionRequiredMixin, FormView):
+    permission_required = 'galkwiapp.can_suggest'
+    form_class = SuggestionCancelForm
+    http_method_names = [m for m in FormView.http_method_names if m != 'get']
+
+    def post(self, request, *args, **kwargs):
+        self.rev = get_object_or_404(Revision, pk=self.kwargs['rev_id'])
+
+        if self.rev.user != request.user:
             return HttpResponseBadRequest(request)
-        if rev.status != Revision.STATUS_REVIEWING:
+        if self.rev.status != Revision.STATUS_REVIEWING:
             return HttpResponseBadRequest(request)
-        form = SuggestionCancelForm(request.POST)
-        if form.is_valid():
-            rev.cancel()
-            return HttpResponseRedirect(rev.get_absolute_url())
-        else:
-            return HttpResponseBadRequest(request)
-    else:
-        return HttpResponseBadRequest(request)
+
+        return super(SuggestionCancelView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.rev.cancel()
+        return HttpResponseRedirect(self.rev.get_absolute_url())
 
 
 class SuggestionRecentChangesView(ListView):
