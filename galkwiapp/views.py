@@ -248,32 +248,38 @@ class SuggestionReviewOneView(PermissionRequiredMixin, TemplateView):
         return super(SuggestionReviewOneView, self).get(request, *args, **kwargs)
 
 
-@permission_required('galkwiapp.can_review')
-def suggestion_review(request, rev_id):
-    if request.method == 'POST':
-        rev = get_object_or_404(Revision, pk=rev_id)
-        if rev.status != Revision.STATUS_REVIEWING:
+class SuggestionReviewView(PermissionRequiredMixin, FormView):
+    permission_required = 'galkwiapp.can_suggest'
+    form_class = SuggestionReviewForm
+    http_method_names = [m for m in FormView.http_method_names if m != 'get']
+
+    def post(self, request, *args, **kwargs):
+        self.rev = get_object_or_404(Revision, pk=self.kwargs['rev_id'])
+
+        if self.rev.status != Revision.STATUS_REVIEWING:
             return HttpResponseBadRequest(request)
-        form = SuggestionReviewForm(request.POST)
-        if form.is_valid():
-            review = form.cleaned_data['review']
-            comment = form.cleaned_data['comment']
-            if review == 'APPROVE':
-                rev.approve(request.user, comment)
-                # reject other suggestions
-                others = Revision.objects.filter(entry=rev.entry, status=Revision.STATUS_REVIEWING)
-                for o in others:
-                    o.reject(request.user, 'rejected by other suggestion %s' % rev.get_absolute_url())
-            elif review == 'REJECT':
-                rev.reject(request.user, comment)
-            if '_reviewone' in request.POST:
-                return HttpResponseRedirect(reverse('suggestion_review_one'))
-            else:
-                return HttpResponseRedirect(rev.get_absolute_url())
+
+        return super(SuggestionReviewView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        review = form.cleaned_data['review']
+        comment = form.cleaned_data['comment']
+
+        if review == 'APPROVE':
+            self.rev.approve(self.request.user, comment)
+            # reject other suggestions
+            others = Revision.objects.filter(entry=self.rev.entry,
+                                             status=Revision.STATUS_REVIEWING)
+            for o in others:
+                o.reject(self.request.user,
+                         'rejected by other suggestion %s' % self.rev.get_absolute_url())
+        elif review == 'REJECT':
+            self.rev.reject(self.request.user, comment)
+
+        if '_reviewone' in self.request.POST:
+            return HttpResponseRedirect(reverse('suggestion_review_one'))
         else:
-            return HttpResponseBadRequest(request)
-    else:
-        return HttpResponseBadRequest(request)
+            return HttpResponseRedirect(self.rev.get_absolute_url())
 
 
 class SuggestionCancelView(PermissionRequiredMixin, FormView):
