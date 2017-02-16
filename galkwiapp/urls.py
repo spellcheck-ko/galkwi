@@ -27,7 +27,8 @@ urlpatterns = [
     url(r'^entry/(?P<entry_id>\d+)/$', views.entry_detail,
         name='entry'),
 
-    url(r'^suggestion/$', views.suggestion_index, name='suggestion_index'),
+    url(r'^suggestion/$', views.SuggestionIndexView.as_view(),
+        name='suggestion_index'),
     url(r'^suggestion/(?P<rev_id>\d+)/$', views.suggestion_detail,
         name='suggestion'),
     url(r'^suggestion/add/$', views.SuggestionAddView.as_view(),
@@ -43,7 +44,7 @@ urlpatterns = [
     url(r'^suggestion/cancel/(?P<rev_id>\d+)/$', views.suggestion_cancel,
         name='suggestion_cancel'),
     url(r'^suggestion/recentchanges/$',
-        views.SugestionRecentChangesView.as_view(),
+        views.SuggestionRecentChangesView.as_view(),
         name='suggestion_recentchanges'),
 
     url(r'^stat/$', views.StatView.as_view(), name='stat'),

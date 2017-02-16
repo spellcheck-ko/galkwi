@@ -61,19 +61,10 @@ SUGGESTIONS_PER_PAGE = 25
 SUGGESTIONS_PAGE_RANGE = 3
 
 
-def suggestion_index(request):
-    query = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('-timestamp')
-    paginator = Paginator(query, SUGGESTIONS_PER_PAGE)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-    data = {}
-    try:
-        data['page'] = paginator.page(page)
-    except InvalidPage:
-        raise Http404
-    return render(request, 'galkwiapp/suggestion_index.html', data)
+class SuggestionIndexView(ListView):
+    template_name = 'galkwiapp/suggestion_index.html'
+    queryset = Revision.objects.filter(status=Revision.STATUS_REVIEWING).order_by('-timestamp')
+    paginate_by = SUGGESTIONS_PER_PAGE
 
 
 class TermsFormMixin(object):
@@ -277,7 +268,7 @@ def suggestion_cancel(request, rev_id):
         return HttpResponseBadRequest(request)
 
 
-class SugestionRecentChangesView(ListView):
+class SuggestionRecentChangesView(ListView):
     template_name = 'galkwiapp/suggestion_recentchanges.html'
     queryset = Revision.objects.filter(status__in=(
         Revision.STATUS_APPROVED, Revision.STATUS_REJECTED,
