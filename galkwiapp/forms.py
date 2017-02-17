@@ -44,8 +44,11 @@ class SuggestionEditForm(forms.ModelForm):
         if 'instance' in kwargs:
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
-            kwargs['initial']['props'] = kwargs['instance'].props.split(',')
-        super(SuggestionEditForm, self).__init__(*args, **kwargs)
+            try:
+                kwargs['initial']['props'] = kwargs['instance'].props.split(',')
+            except AttributeError:
+                kwargs['initial']['props'] = []
+            super(SuggestionEditForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         word = super(SuggestionEditForm, self).save(*args, **kwargs)
