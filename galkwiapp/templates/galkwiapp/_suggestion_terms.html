@@ -1,29 +1,40 @@
 <p>
 {{ terms_form.as_p }}
 <p>위 동의는 세션이 끝날 때까지 저장됩니다.
-<script src="/static/js/jquery-3.1.1.min.js"></script>
 <script src="/static/js/js.cookie.js"></script>
 <script>
-$(document).ready(function(){
-    var agree_license = Cookies.get('galkwi_agree_license');
-    var agree_responsible = Cookies.get('galkwi_agree_responsible');
-    if (agree_license == 1) {
-        $('#id_agree_license').prop('checked', true);
-    }
-    if (agree_responsible == 1) {
-        $('#id_agree_responsible').prop('checked', true);
-    }
-});
-$('#id_agree_license').click(function(){
+var check_license = document.getElementById('id_agree_license');
+var check_responsible = document.getElementById('id_agree_responsible');
+
+var agree_license = Cookies.get('galkwi_agree_license');
+var agree_responsible = Cookies.get('galkwi_agree_responsible');
+
+if (agree_license == 1) {
+    check_license.checked = true;
+}
+if (agree_responsible == 1) {
+    check_responsible.checked = true;
+}
+
+check_license.onclick = function() {
   Cookies.set('galkwi_agree_license', this.checked ? 1 : 0, { expires: 1 });
-});
-$('#id_agree_responsible').click(function(){
+};
+
+check_responsible.onclick = function() {
   Cookies.set('galkwi_agree_responsible', this.checked ? 1 : 0, { expires: 1 });
-});
-function uncheck_responsible(){
-  $('#id_agree_responsible').prop('checked', false);
+};
+
+function uncheck_responsible() {
+  check_responsible.checked = false;
   Cookies.set('galkwi_agree_responsible', 0, { expires: 1 });
 }
-$('#id_description').keyup(uncheck_responsible);
-$('#id_description').change(uncheck_responsible);
+
+if (document.getElementById("id_description") &&
+    document.getElementById("id_description").value) {
+  var description = document.getElementById('id_description');
+  description.onchange = uncheck_responsible;
+  description.onkeyup = uncheck_responsible;
+}
+
+
 </script>
