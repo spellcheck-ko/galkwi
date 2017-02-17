@@ -6,10 +6,10 @@
 
 <h3>제안 중인 단어</h3>
 
-<p>전체 {{ page.paginator.count }}개</p>
+<p>전체 {{ paginator.count }}개</p>
 
 <table>
-{% for suggestion in page.object_list %}
+{% for suggestion in object_list %}
 <tr>
   <td><a href="{{ suggestion.get_absolute_url }}">{{ suggestion.action_name }}</a></td>
   <td>{{ suggestion.timestamp }}</td>
@@ -31,11 +31,11 @@
 {% endfor %}
 </table>
 <div class="paginator">
-{% if page.has_previous %}
-<a href="?page={{ page.previous_page_number }}">이전</a>
+{% if page_obj.has_previous %}
+<a href="?page={{ page_obj.previous_page_number }}">이전</a>
 {% endif %}
-{% if page.has_next %}
-<a href="?page={{ page.next_page_number }}">다음</a>
+{% if page_obj.has_next %}
+<a href="?page={{ page_obj.next_page_number }}">다음</a>
 {% endif %}
 </div>
 
