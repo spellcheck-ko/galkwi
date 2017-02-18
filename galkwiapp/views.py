@@ -1,7 +1,8 @@
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.utils import timezone
 from django.views.generic import (CreateView, DetailView, FormView, ListView,
                                   TemplateView, UpdateView)
@@ -21,7 +22,7 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-class ProfileView(TemplateView):
+class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/profile.html'
 
 
