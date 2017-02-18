@@ -1,7 +1,8 @@
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import IntegrityError, transaction
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import (CreateView, DetailView, FormView, ListView,
                                   TemplateView, UpdateView)
@@ -120,16 +121,21 @@ class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
         )).filter(word__word=word.word, word__pos=word.pos)
         if existing.count() > 0:
             return HttpResponseBadRequest(self.request)
-        word.save()
-        rev = Revision()
-        rev.word = word
-        rev.deleted = False
-        rev.action = 'ADD'
-        rev.timestamp = timezone.now()
-        rev.user = self.request.user
-        rev.status = Revision.STATUS_REVIEWING
-        rev.comment = form.cleaned_data['comment']
-        rev.save()
+
+        try:
+            with transaction.atomic():
+                word.save()
+                rev = Revision()
+                rev.word = word
+                rev.deleted = False
+                rev.action = 'ADD'
+                rev.timestamp = timezone.now()
+                rev.user = self.request.user
+                rev.status = Revision.STATUS_REVIEWING
+                rev.comment = form.cleaned_data['comment']
+                rev.save()
+        except IntegrityError:
+            return HttpResponseBadRequest(self.request)
 
         if '_addanother' in self.request.POST:
             return self.render_to_response(
@@ -200,17 +206,24 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
         if existing.count() > 0:
             print('ERROR: duplicate revisions')
             return HttpResponseBadRequest(self.request)
-        word.save()
-        rev = Revision()
-        rev.entry = entry
-        rev.word = word
-        rev.deleted = False
-        rev.timestamp = timezone.now()
-        rev.parent = entry.latest
-        rev.user = self.request.user
-        rev.status = Revision.STATUS_REVIEWING
-        rev.comment = form.cleaned_data['comment']
-        rev.save()
+
+        try:
+            with transaction.atomic():
+                word.save()
+                rev = Revision()
+                rev.entry = entry
+                rev.word = word
+                rev.deleted = False
+                rev.timestamp = timezone.now()
+                rev.parent = entry.latest
+                rev.user = self.request.user
+                rev.status = Revision.STATUS_REVIEWING
+                rev.comment = form.cleaned_data['comment']
+                rev.save()
+        except IntegrityError:
+            return HttpResponseBadRequest(self.request)
+
+
         return HttpResponseRedirect(rev.get_absolute_url())
 
 
