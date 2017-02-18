@@ -41,7 +41,7 @@ class EntryIndexView(ListView):
         return queryset.order_by('latest__word__word')
 
     def get_form(self):
-        return EntrySearchForm(self.get_form_kwargs())
+        return EntrySearchForm(**self.get_form_kwargs())
 
     def get_form_kwargs(self):
         kwargs = {}
