@@ -38,7 +38,8 @@ class Command(BaseCommand):
             rev = entry.latest
             while rev:
                 contributors_set.add(rev.user.username)
-                contributors_set.add(rev.reviewer.username)
+                if rev.reviewer:
+                    contributors_set.add(rev.reviewer.username)
                 rev = rev.parent
 
         entries = Entry.objects.filter(latest__deleted=False)
