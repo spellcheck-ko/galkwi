@@ -55,6 +55,10 @@ class EntryIndexView(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = self.form
+
+        if self.form.is_bound and self.form.is_valid():
+            kwargs['word'] = self.form.cleaned_data['word']
+
         return super(EntryIndexView, self).get_context_data(**kwargs)
 
 
