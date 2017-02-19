@@ -28,10 +28,10 @@
 </div>
 <div class="paginator">
 {% if page_obj.has_previous %}
-<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
+<a href="?{% if word %}word={{ word|escape }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
 {% endif %}
 {% if page_obj.has_next %}
-<a href="?{% if word %}word={{ word|escape }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+<a href="?{% if word %}word={{ word|escape }}&amp;{% endif %}page={{ page_obj.next_page_number }}">다음</a>
 {% endif %}
 </div>
 {% endif %}

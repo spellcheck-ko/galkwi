@@ -10,6 +10,12 @@ from django.utils.translation import ugettext_lazy as _
 class EntrySearchForm(forms.Form):
     word = forms.CharField(label='단어')
 
+    def get_word(self):
+        if self.is_bound and self.is_valid():
+            return self.cleaned_data['word']
+        else:
+            return None
+
 
 class SuggestionReviewForm(forms.Form):
     REVIEW_CHOICES = (

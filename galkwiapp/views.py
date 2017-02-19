@@ -31,14 +31,15 @@ class EntryIndexView(ListView):
     paginate_by = ENTRIES_PER_PAGE
     template_name = 'galkwiapp/entry_index.html'
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.form = self.get_form()
-        return super(EntryIndexView, self).get(request, *args, **kwargs)
+        return super(EntryIndexView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = Entry.objects.filter(latest__deleted=False)
-        if self.form.is_valid():
-            queryset = queryset.filter(latest__word__word__contains=self.form.cleaned_data['word'])
+        word = self.form.get_word()
+        if word is not None:
+            queryset = queryset.filter(latest__word__word__contains=word)
 
         return queryset.order_by('latest__word__word')
 
@@ -48,13 +49,18 @@ class EntryIndexView(ListView):
     def get_form_kwargs(self):
         kwargs = {}
 
-        if self.request.method == 'GET':
+        if 'word' in self.request.GET:
             kwargs['data'] = self.request.GET
 
         return kwargs
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = self.form
+
+        word = self.form.get_word()
+        if word is not None:
+            kwargs['word'] = word
+
         return super(EntryIndexView, self).get_context_data(**kwargs)
 
 
