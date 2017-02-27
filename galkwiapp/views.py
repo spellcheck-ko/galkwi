@@ -126,7 +126,7 @@ class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
         dups = Revision.objects.filter(status__in=(
             Revision.STATUS_APPROVED,
             Revision.STATUS_REVIEWING,
-        )).filter(word__word=word.word, word__pos=word.pos)
+        ), word__word=word.word, word__pos=word.pos)
 
         if dups.exists():
             return HttpResponseBadRequest(self.request)
@@ -212,7 +212,7 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
         # check for duplicate recordds
         dups = Revision.objects.filter(status__in=(
             Revision.STATUS_APPROVED, Revision.STATUS_REVIEWING
-        )).filter(word__word=word.word, word__pos=word.pos).exclude(entry=entry)
+        ), word__word=word.word, word__pos=word.pos).exclude(entry=entry)
 
         if dups.exists():
             print('ERROR: duplicate revisions')
