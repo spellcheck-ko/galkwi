@@ -121,12 +121,14 @@ class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
 
     def form_valid(self, form, terms_form):
         word = form.save(commit=False)
-        # check duplicate
-        existing = Revision.objects.filter(status__in=(
+
+        # check for duplicate records
+        dups = Revision.objects.filter(status__in=(
             Revision.STATUS_APPROVED,
             Revision.STATUS_REVIEWING,
-        )).filter(word__word=word.word, word__pos=word.pos)
-        if existing.count() > 0:
+        ), word__word=word.word, word__pos=word.pos)
+
+        if dups.exists():
             return HttpResponseBadRequest(self.request)
 
         try:
@@ -206,11 +208,13 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
     def form_valid(self, form, terms_form):
         entry = self.get_entry()
         word = form.save(commit=False)
-        # check duplicate
-        existing = Revision.objects.filter(status__in=(
+
+        # check for duplicate recordds
+        dups = Revision.objects.filter(status__in=(
             Revision.STATUS_APPROVED, Revision.STATUS_REVIEWING
-        )).filter(word__word=word.word, word__pos=word.pos).exclude(entry=entry)
-        if existing.count() > 0:
+        ), word__word=word.word, word__pos=word.pos).exclude(entry=entry)
+
+        if dups.exists():
             print('ERROR: duplicate revisions')
             return HttpResponseBadRequest(self.request)
 
@@ -229,7 +233,6 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
                 rev.save()
         except IntegrityError:
             return HttpResponseBadRequest(self.request)
-
 
         return HttpResponseRedirect(rev.get_absolute_url())
 
