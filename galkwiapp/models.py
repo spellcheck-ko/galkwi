@@ -47,10 +47,17 @@ class Word(models.Model):
         ]
 
 
+SOURCE_CHOICES = (
+    ('galkwi', '갈퀴'),
+    ('insighter', '인사이터'),
+    ('sejong', '세종'),
+    ('woorimalsam', '우리말샘'),
+)
+
 class Entry(models.Model):
     title = models.CharField(verbose_name='제목', max_length=100)
     latest = models.ForeignKey('Revision', related_name='revision_latest', null=True, blank=True)
-    # TODO: discuss
+    source = models.CharField(verbose_name='원본 사전', max_length=100, default='galkwi', choices=SOURCE_CHOICES)
 
     class Meta:
         verbose_name_plural = 'Entries'
@@ -110,6 +117,8 @@ class Revision(models.Model):
     reviewer = models.ForeignKey(User, verbose_name='리뷰어', related_name='reviewer', null=True, blank=True)
     review_comment = models.CharField(verbose_name='리뷰 설명', max_length=1000, blank=True)
     review_timestamp = models.DateTimeField(verbose_name='리뷰 시각', null=True, blank=True)
+
+    license = models.CharField(verbose_name='라이선스', max_length=100, default='CC-BY-4.0')
 
     class Meta:
         ordering = ['-timestamp', 'status']
