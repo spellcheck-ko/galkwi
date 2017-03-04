@@ -8,6 +8,7 @@ def set_old_licenses(apps, schema_editor):
     Revision = apps.get_model('galkwiapp', 'Revision')
     for rev in Revision.objects.all():
         rev.license='MPL-1.1/GPL-2.0/LGPL-2.1'
+        rev.save()
 
 class Migration(migrations.Migration):
 
