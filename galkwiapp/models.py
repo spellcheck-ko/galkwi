@@ -47,14 +47,14 @@ class Word(models.Model):
         ]
 
 
-SOURCE_CHOICES = (
-    ('galkwi', '갈퀴'),
-    ('insighter', '인사이터'),
-    ('sejong', '세종'),
-    ('woorimalsam', '우리말샘'),
-)
-
 class Entry(models.Model):
+    SOURCE_CHOICES = (
+        ('galkwi', '갈퀴'),
+        ('insighter', '인사이터'),
+        ('sejong', '세종'),
+        ('woorimalsam', '우리말샘'),
+    )
+
     title = models.CharField(verbose_name='제목', max_length=100)
     latest = models.ForeignKey('Revision', related_name='revision_latest', null=True, blank=True)
     source = models.CharField(verbose_name='원본 사전', max_length=100, default='galkwi', choices=SOURCE_CHOICES)
@@ -69,6 +69,12 @@ class Entry(models.Model):
 
     def get_absolute_url(self):
         return '/entry/%d/' % (self.id)
+
+    def source_name(self):
+        for x in Entry.SOURCE_CHOICES:
+            if x[0] == self.source:
+                return x[1]
+        return 'UNKNOWN'
 
     def update_rev(self, rev):
         self.latest = rev

@@ -28,6 +28,11 @@
 </table>
 {% endif %}
 
+<ul>
+<li>원본 사전: {{ entry.source_name }}
+<li>라이선스: {{ entry.latest.license }}
+</ul>
+
 <h3>제안</h3>
 
 {% if revisions %}
