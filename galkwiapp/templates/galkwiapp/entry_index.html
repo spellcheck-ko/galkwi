@@ -21,7 +21,7 @@
   <td><a href="{{ entry.get_absolute_url }}">{{ entry.latest.word.word }}({{entry.latest.word.pos}})</a></td>
   <td>{{ entry.latest.timestamp }}</td>
   <td>{{ entry.latest.user.username }}</td>
-  <td>{% if entry.latest.comment %}{{ entry.latest.comment|truncatewords:4 }}{% endif %}</td>
+  <td>{{ entry.latest.word.description }}</td>
 </tr>
 {% endfor %}
 </table>

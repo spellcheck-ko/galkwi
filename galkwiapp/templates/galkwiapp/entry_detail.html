@@ -30,6 +30,7 @@
 
 <ul>
 <li>원본 사전: {{ entry.source_name }}
+<li>라이선스: {{ entry.latest.license }}
 </ul>
 
 <h3>제안</h3>
@@ -62,7 +63,6 @@
 <td><a href="{% url 'suggestion' rev_id=rev.id %}">{{ rev.action_name }}</a></td>
 <td>{{ rev.timestamp }}</td>
 <td>{{ rev.user.username }}</td>
-<td>({{ rev.license }})</td>
 <td>{{ rev.comment }}</td>
 </tr>
 {% endfor %}
