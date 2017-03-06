@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -330,3 +331,13 @@ class SuggestionRecentChangesView(ListView):
 
 class StatView(TemplateView):
     template_name = 'galkwiapp/stat.html'
+
+    def get_context_data(self, **kwargs):
+        all_words = Entry.objects.filter(latest__deleted=False)
+
+        kwargs['words_total'] = all_words.count()
+        kwargs['words_by_license'] = licenses = []
+        q = all_words.values('latest__license').annotate(Count('id'));
+        for d in q:
+            licenses.append((d['latest__license'], d['id__count']))
+        return super(StatView, self).get_context_data(**kwargs)
