@@ -12,13 +12,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('filename', type=str)
+        parser.add_argument('--license', nargs=1)
 
     def handle(self, *args, **options):
         filename = options['filename']
-        self.do_export(open(filename, 'w'))
+        self.do_export(open(filename, 'w'), **options)
 
-    def do_export(self, file):
+    def do_export(self, file, **options):
         contributors_set = set()
+        try:
+            license = options['license'][0]
+        except KeyError:
+            license = None
 
         def write_entry(file, entry):
             word = entry.latest.word
@@ -43,6 +48,8 @@ class Command(BaseCommand):
                 rev = rev.parent
 
         entries = Entry.objects.filter(latest__deleted=False)
+        if license:
+            entries = entries.filter(latest__license=license)
         entries = entries.order_by('latest__word__word')
         file.write('{\n')
         file.write('"entries":[\n')
