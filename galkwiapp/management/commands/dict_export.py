@@ -22,7 +22,7 @@ class Command(BaseCommand):
         contributors_set = set()
         try:
             license = options['license'][0]
-        except KeyError:
+        except TypeError:
             license = None
 
         def write_entry(file, entry):
