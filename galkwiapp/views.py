@@ -130,7 +130,12 @@ class SuggestionAddView(PermissionRequiredMixin, TermsFormMixin, CreateView):
         ), word__word=word.word, word__pos=word.pos)
 
         if dups.exists():
-            return HttpResponseBadRequest(self.request)
+            rev = dups.get()
+            return self.render_to_response(
+                self.get_context_data(form=SuggestionEditForm(),
+                                      terms_form=TermsAgreeForm(),
+                                      duplicated_rev=rev)
+            )
 
         try:
             with transaction.atomic():
@@ -212,12 +217,17 @@ class SuggestionUpdateView(PermissionRequiredMixin, TermsFormMixin, UpdateView):
 
         # check for duplicate recordds
         dups = Revision.objects.filter(status__in=(
-            Revision.STATUS_APPROVED, Revision.STATUS_REVIEWING
+            Revision.STATUS_APPROVED,
+            Revision.STATUS_REVIEWING
         ), word__word=word.word, word__pos=word.pos).exclude(entry=entry)
 
         if dups.exists():
-            print('ERROR: duplicate revisions')
-            return HttpResponseBadRequest(self.request)
+            rev = dups.get()
+            return self.render_to_response(
+                self.get_context_data(form=SuggestionEditForm(),
+                                      terms_form=TermsAgreeForm(),
+                                      duplicated_rev=rev)
+            )
 
         try:
             with transaction.atomic():

@@ -2,7 +2,9 @@
 {% block content %}
 <div class="suggestion">
 {% if submitted_rev %}
-<ul class="messagelist"><li><a href="{% url 'suggestion' rev_id=submitted_rev.id %}">{{ submitted_rev.word.word }}</a>({{ submitted_rev.word.pos }})' 제안이 잘 생성되었습니다.</li></ul>
+<ul class="messagelist"><li>성공: '<a href="{% url 'suggestion' rev_id=submitted_rev.id %}">{{ submitted_rev.word.word }}</a>({{ submitted_rev.word.pos }})' 제안이 잘 생성되었습니다.</li></ul>
+{% elif duplicated_rev %}
+<ul class="messagelist"><li>실패: '<a href="{% url 'suggestion' rev_id=duplicated_rev.id %}">{{ duplicated_rev.word.word }}</a>({{ duplicated_rev.word.pos }})' 단어가 이미 들어 있거나 제안 중입니다.</li></ul>
 {% endif %}
 <form action="" method="post">{% csrf_token %}
 <table>
