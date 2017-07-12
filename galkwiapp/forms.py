@@ -33,7 +33,7 @@ class SuggestionCancelForm(forms.Form):
     pass
 
 
-PROPS_LIST = ('가산명사', '단위명사', '보조용언:-어', '보조용언:-을', '보조용언:-은', '용언합성', '준말용언',
+PROPS_LIST = ('비속어', '보조용언:-어', '보조용언:-을', '보조용언:-은', '용언합성', '준말용언',
               'ㄷ불규칙', 'ㅂ불규칙', 'ㅅ불규칙', 'ㅎ불규칙', '러불규칙', '르불규칙', '우불규칙', '으불규칙')
 PROPS_CHOICES = tuple(zip(PROPS_LIST, PROPS_LIST))
 
