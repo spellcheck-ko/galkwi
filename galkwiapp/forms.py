@@ -39,7 +39,7 @@ PROPS_CHOICES = tuple(zip(PROPS_LIST, PROPS_LIST))
 
 class SuggestionEditForm(forms.ModelForm):
     # override widget
-    props = forms.MultipleChoiceField(label='속성', required=False, widget=forms.CheckboxSelectMultiple, choices=PROPS_CHOICES)
+    #props = forms.MultipleChoiceField(label='속성', required=False, widget=forms.CheckboxSelectMultiple, choices=PROPS_CHOICES)
 
     description = forms.CharField(label='설명', widget=forms.Textarea,
                                   required=False)
@@ -50,15 +50,15 @@ class SuggestionEditForm(forms.ModelForm):
         if 'instance' in kwargs:
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
-            try:
-                kwargs['initial']['props'] = kwargs['instance'].props.split(',')
-            except AttributeError:
-                kwargs['initial']['props'] = []
+            # try:
+            #     kwargs['initial']['props'] = kwargs['instance'].props.split(',')
+            # except AttributeError:
+            #     kwargs['initial']['props'] = []
         super(SuggestionEditForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         word = super(SuggestionEditForm, self).save(*args, **kwargs)
-        word.props = ','.join(sorted(self.cleaned_data.get('props')))
+        # word.props = ','.join(sorted(self.cleaned_data.get('props')))
         return word
 
     class Meta:

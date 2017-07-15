@@ -1,0 +1,49 @@
+<script>
+  /*
+  $('#id_props').tagEditor({
+    initialTags: [],
+    delimiter: ','
+  });
+  */
+</script>
+<script>
+  var word = document.getElementById('id_word');
+  var pos = document.getElementById('id_pos');
+  var props = document.getElementById('id_props');
+  function include_prop(n) {
+    if (props.value === "") {
+      props.value = n;
+      return;
+    }
+    var proparray = props.value.split(",");
+    for (var i = 0; i < proparray.length; i++) {
+      if (proparray[i] === n) {
+        return;
+      }
+    }
+    proparray.push(n);
+    props.value = proparray.join(",");
+  }
+  function auto_props() {
+    var proparray = props.value.split(",");
+    var decomposed = word.value.normalize("NFD");
+    if (pos.value === "동사" || pos.value === "형용사") {
+      if (decomposed.endsWith("\u11ae\u1103\u1161")) {
+        include_prop("ㄷ불규칙");
+      } else if (decomposed.endsWith("\u11b8\u1103\u1161")) {
+        include_prop("ㅂ불규칙");
+      } else if (decomposed.endsWith("\u11ba\u1103\u1161")) {
+        include_prop("ㅅ불규칙");
+      } else if (decomposed.endsWith("\u11c2\u1103\u1161")) {
+        include_prop("ㅎ불규칙");
+      } else if (decomposed.endsWith("\u1105\u1173\u1103\u1161")) {
+        include_prop("르러불규칙");
+        alert("르불규칙 또는 러불규칙 속성을 입력하십시오.");
+      } else if (decomposed.endsWith("\u1173\u1103\u1161")) {
+        include_prop("으불규칙");
+      }
+    }
+  }
+  word.onchange = auto_props;
+  pos.onchange = auto_props;
+</script>

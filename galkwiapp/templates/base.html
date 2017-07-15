@@ -5,7 +5,9 @@
 <meta charset="utf-8">
 <title>{% block title %}갈퀴{% endblock %}</title>
 <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
-{% block style %}{% endblock %}{% block script %}{% endblock %}
+{% block style %}{% endblock %}
+<script src="/static/js/jquery-3.2.1.slim.min.js"></script>
+{% block script %}{% endblock %}
 </head>
 <body>
 <div id="header">

@@ -1,4 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.tag-editor.css' %}">
+{% endblock %}
+{% block script %}
+<script src="/static/js/jquery.tag-editor.min.js"></script>
+{% endblock %}
 {% block content %}
 <div class="suggestion">
 {% if submitted_rev %}
@@ -16,4 +23,5 @@
 <input type="submit" value="저장하기" />
 </form>
 </div>
+{% include "galkwiapp/_suggestion_edit_help.html" %}
 {% endblock %}
